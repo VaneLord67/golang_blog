@@ -36,8 +36,8 @@ func UserLogin(c *gin.Context) {
 		common.FailCode(c, common.TOKEN_CREATE_ERROR)
 	}
 	dto := struct {
-		jwt string
-	}{jwt: token}
+		Jwt string
+	}{Jwt: token}
 	common.SuccessWithData(c, dto)
 }
 
