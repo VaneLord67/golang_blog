@@ -22,7 +22,7 @@ func TokenInterceptor() gin.HandlerFunc {
 		sqlUser := model.User{}
 		result := dao.DB.Where("id = ?", userId).Take(&sqlUser)
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
-			FailCode(c, USER_NOT_EXISTS)
+			FailCode(c, TOKEN_PARSE_ERROR)
 			c.Abort() // 不调用该请求的剩余处理程序
 			return
 		}

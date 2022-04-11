@@ -13,6 +13,7 @@ func main() {
 	//gin.SetMode(gin.ReleaseMode) // 设置release模式，不会打印出很多调试日志
 	// 设置路由
 	controller.UserController(r)
+	controller.ArticleController(r)
 	// 启动
 	err := r.Run(":8085")
 	if err != nil {
