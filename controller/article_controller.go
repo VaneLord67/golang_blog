@@ -10,6 +10,6 @@ func ArticleController(r *gin.Engine) {
 	articleGroup := r.Group("/article")
 	articleGroup.Use(common.TokenInterceptor())
 	{
-		articleGroup.GET("/all", service.ArticleQueryAll)
+		articleGroup.GET("/all", service.ArticleQueryByPage)
 	}
 }

@@ -16,9 +16,21 @@ func TokenInterceptor() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		token := c.Request.Header.Get(HEADER)
 		userIdStr, err := ParseToken(token)
-		CheckErr(c, err)
+		if err != nil {
+			if err.Error() == "Token is expired" {
+				FailCode(c, TOKEN_EXPIRED)
+			} else {
+				FailWithMessage(c, err.Error())
+			}
+			c.Abort()
+			return
+		}
 		userId, err := strconv.Atoi(userIdStr)
-		CheckErr(c, err)
+		if err != nil {
+			FailCode(c, TOKEN_PARSE_ERROR)
+			c.Abort()
+			return
+		}
 		sqlUser := model.User{}
 		result := dao.DB.Where("id = ?", userId).Take(&sqlUser)
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {

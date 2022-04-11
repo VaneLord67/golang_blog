@@ -28,3 +28,27 @@ func connect() *gorm.DB {
 	}
 	return db
 }
+
+type Page struct {
+	PageSize  int
+	PageNum   int
+	TotalPage int
+	Total     int64
+	List      interface{}
+}
+
+// SelectPage : tx要写上查询条件并绑定上model。dest要传指针进来
+func SelectPage(tx *gorm.DB, pageNum int, pageSize int, dest interface{}) Page {
+	offset := (pageNum - 1) * pageSize
+	var cnt int64
+	tx.Count(&cnt)
+	tx.Offset(offset).Limit(pageSize).Find(dest)
+	page := Page{
+		PageSize:  pageSize,
+		PageNum:   pageNum,
+		TotalPage: int(cnt/int64(pageSize) + int64(1)),
+		Total:     cnt,
+		List:      dest,
+	}
+	return page
+}
