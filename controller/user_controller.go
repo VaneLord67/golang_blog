@@ -9,5 +9,6 @@ func UserController(r *gin.Engine) {
 	userGroup := r.Group("/user")
 	{
 		userGroup.POST("/login", service.UserLogin)
+		userGroup.POST("/register", service.UserRegister)
 	}
 }

@@ -11,9 +11,9 @@ var DB = connect()
 
 //配置MySQL连接参数
 const username = "root"
-const password = "abc123"
+const password = "HUSTer_D724"
 const host = "127.0.0.1"
-const port = 3306
+const port = 3307
 const Dbname = "golang_blog"
 
 func connect() *gorm.DB {

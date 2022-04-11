@@ -8,6 +8,6 @@ type User struct {
 }
 
 func (u User) TableName() string {
-	//绑定MYSQL表名为users
-	return "users"
+	//绑定MYSQL表名为user
+	return "user"
 }
