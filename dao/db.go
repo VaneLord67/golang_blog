@@ -2,9 +2,13 @@ package dao
 
 import (
 	"fmt"
+	"github.com/gin-gonic/gin"
+	"golang_blog/common"
+	"golang_blog/model"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"log"
+	"strconv"
 )
 
 var DB = connect()
@@ -29,12 +33,30 @@ func connect() *gorm.DB {
 	return db
 }
 
+func GetCurrentUser(c *gin.Context) model.User {
+	currentUser, _ := c.Get(common.USER_KEY)
+	user := currentUser.(model.User)
+	return user
+}
+
 type Page struct {
 	PageSize  int
 	PageNum   int
 	TotalPage int
 	Total     int64
 	List      interface{}
+}
+
+func GetPageNumAndSize(c *gin.Context) (int, int) {
+	pageNum, err := strconv.Atoi(c.Query("pageNum"))
+	if err != nil {
+		common.FailCode(c, common.PARAMETER_PARSE_ERROR)
+	}
+	pageSize, err := strconv.Atoi(c.Query("pageSize"))
+	if err != nil {
+		common.FailCode(c, common.PARAMETER_PARSE_ERROR)
+	}
+	return pageNum, pageSize
 }
 
 // SelectPage : tx要写上查询条件并绑定上model。dest要传指针进来
