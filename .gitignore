@@ -3,3 +3,5 @@ linux/
 *.iws
 *.iml
 *.ipr
+captcha_micro/cache/naming/group-a@@demo.go@@cluster-a
+captcha_micro/log/nacos-sdk.log

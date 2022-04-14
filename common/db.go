@@ -1,9 +1,8 @@
-package dao
+package common
 
 import (
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"golang_blog/common"
 	"golang_blog/model"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -11,7 +10,10 @@ import (
 	"strconv"
 )
 
-var DB = connect()
+var db = connect()
+
+// GetDB : 用Get方法防止db变量被其他地方修改
+func GetDB() *gorm.DB { return db }
 
 //配置MySQL连接参数
 const username = "root"
@@ -34,7 +36,7 @@ func connect() *gorm.DB {
 }
 
 func GetCurrentUser(c *gin.Context) model.User {
-	currentUser, _ := c.Get(common.USER_KEY)
+	currentUser, _ := c.Get(UserKey)
 	user := currentUser.(model.User)
 	return user
 }
@@ -50,11 +52,11 @@ type Page struct {
 func GetPageNumAndSize(c *gin.Context) (int, int) {
 	pageNum, err := strconv.Atoi(c.Query("pageNum"))
 	if err != nil {
-		common.FailCode(c, common.PARAMETER_PARSE_ERROR)
+		FailCode(c, PARAMETER_PARSE_ERROR)
 	}
 	pageSize, err := strconv.Atoi(c.Query("pageSize"))
 	if err != nil {
-		common.FailCode(c, common.PARAMETER_PARSE_ERROR)
+		FailCode(c, PARAMETER_PARSE_ERROR)
 	}
 	return pageNum, pageSize
 }

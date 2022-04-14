@@ -10,8 +10,9 @@ func main() {
 	// 初始化一个http服务对象
 	r := gin.Default()
 	r.Use()
-	//gin.SetMode(gin.ReleaseMode) // 设置release模式，不会打印出很多调试日志
+	//gin.SetMode(gin.ReleaseMode) // 设置release模式，不会打印出调试日志
 	// 设置路由
+	controller.BaseController(r)
 	controller.UserController(r)
 	controller.ArticleController(r)
 	// 启动
