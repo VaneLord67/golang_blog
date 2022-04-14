@@ -5,6 +5,10 @@ linux/
 *.ipr
 captcha_micro/cache/naming/group-a@@demo.go@@cluster-a
 captcha_micro/log/nacos-sdk.log
+captcha_micro/cache/naming/
+captcha_micro/log/
+/cache/naming/
+/log/
 /cache/naming/group-a@@demo.go@@cluster-a
 /cache/naming/base@@captcha
 /log/nacos-sdk.log
