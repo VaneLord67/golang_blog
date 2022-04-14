@@ -15,18 +15,32 @@ var db = connect()
 // GetDB : 用Get方法防止db变量被其他地方修改
 func GetDB() *gorm.DB { return db }
 
-//配置MySQL连接参数
-const username = "root"
-const password = "HUSTer_D724"
-const host = "127.0.0.1"
-const port = 3307
-const Dbname = "golang_blog"
+type DatabaseConf struct {
+	Username string
+	Password string
+	Host     string
+	Port     int64
+	Dbname   string
+}
+
+func initDatabaseConf() *DatabaseConf {
+	conf := GetDBConf()
+	return &DatabaseConf{
+		Username: conf.Database.Username,
+		Password: conf.Database.Password,
+		Host:     conf.Database.Host,
+		Port:     conf.Database.Port,
+		Dbname:   conf.Database.DbName,
+	}
+}
+
+var databaseConf = initDatabaseConf()
 
 func connect() *gorm.DB {
 	//通过数据库参数，拼接MYSQL DSN，即数据库连接串（数据源名称）
 	//MYSQL dsn格式： {username}:{password}@tcp({host}:{port})/{Dbname}?charset=utf8&parseTime=True&loc=Local
 	//类似{username}使用花括号包着的名字都是需要替换的参数
-	dsn := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=utf8&parseTime=True&loc=Local", username, password, host, port, Dbname)
+	dsn := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=utf8&parseTime=True&loc=Local", databaseConf.Username, databaseConf.Password, databaseConf.Host, databaseConf.Port, databaseConf.Dbname)
 	//连接MYSQL
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 	if err != nil {

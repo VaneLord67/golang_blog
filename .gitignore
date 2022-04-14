@@ -12,3 +12,5 @@ captcha_micro/log/
 /cache/naming/group-a@@demo.go@@cluster-a
 /cache/naming/base@@captcha
 /log/nacos-sdk.log
+*.yaml
+*.yml
