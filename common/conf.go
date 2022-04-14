@@ -9,7 +9,7 @@ import (
 )
 
 func getActiveConf() string {
-	activeConf := flag.String("port", "dev", "激活的配置文件")
+	activeConf := flag.String("conf", "dev", "激活的配置文件")
 	flag.Parse() // 不Parse获取不到结果
 	return *activeConf
 }
