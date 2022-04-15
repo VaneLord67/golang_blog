@@ -1,8 +1,8 @@
 package service
 
 import (
+	"common"
 	"github.com/gin-gonic/gin"
-	"golang_blog/common"
 	"golang_blog/model"
 )
 

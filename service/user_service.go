@@ -1,9 +1,9 @@
 package service
 
 import (
+	"common"
 	"errors"
 	"github.com/gin-gonic/gin"
-	"golang_blog/common"
 	"golang_blog/model"
 	"golang_blog/util"
 	"gorm.io/gorm"

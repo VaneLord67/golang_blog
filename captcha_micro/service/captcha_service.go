@@ -2,6 +2,7 @@ package service
 
 import (
 	"bytes"
+	"common"
 	"fmt"
 	"github.com/dchest/captcha"
 	"github.com/gin-gonic/gin"
@@ -17,6 +18,13 @@ type CaptchaResponse struct {
 }
 
 func GetCaptcha(c *gin.Context) {
+	var getCaptchaDto struct {
+		nanoid string
+	}
+	err := c.ShouldBind(&getCaptchaDto)
+	if err != nil {
+		common.Fail(c)
+	}
 	length := captcha.DefaultLen
 	captchaId := captcha.NewLen(length)
 	var captchaResponse CaptchaResponse
