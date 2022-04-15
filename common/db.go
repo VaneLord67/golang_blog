@@ -3,12 +3,23 @@ package common
 import (
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"golang_blog/model"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"log"
 	"strconv"
 )
+
+type User struct {
+	Id       int
+	Username string
+	Password string
+	// `gorm:"column:password"`
+}
+
+func (u User) TableName() string {
+	//绑定MYSQL表名为user
+	return "user"
+}
 
 var db = connect()
 
@@ -49,9 +60,9 @@ func connect() *gorm.DB {
 	return db
 }
 
-func GetCurrentUser(c *gin.Context) model.User {
+func GetCurrentUser(c *gin.Context) User {
 	currentUser, _ := c.Get(UserKey)
-	user := currentUser.(model.User)
+	user := currentUser.(User)
 	return user
 }
 

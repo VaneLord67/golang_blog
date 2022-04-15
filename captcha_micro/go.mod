@@ -3,7 +3,7 @@ module captcha_micro
 go 1.18
 
 require (
-	common v0.0.0
+	common v0.0.1
 	github.com/dchest/captcha v0.0.0-20200903113550-03f5f0333e1f
 	github.com/gin-gonic/gin v1.7.7
 	github.com/nacos-group/nacos-sdk-go v1.1.1

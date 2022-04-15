@@ -4,24 +4,39 @@ import (
 	"common"
 	"errors"
 	"github.com/gin-gonic/gin"
+	"github.com/go-redis/redis"
 	"golang_blog/model"
 	"golang_blog/util"
 	"gorm.io/gorm"
 	"net/http/httputil"
 	"net/url"
 	"strconv"
+	"time"
 )
 
-// 注入一个db
+// 注入
 var db = common.GetDB()
+var rc = common.GetRC()
 
 func CaptchaProxy(c *gin.Context) {
-	// 服务发现
-	service, port, err := common.FindService()
-	if err != nil {
-		common.FailCode(c, common.SERVICE_FIND_ERROR)
+	nanoid := c.Query("nanoid")
+	redisPort, err := rc.Get(nanoid).Uint64()
+	rawURL := ""
+	// 没有缓存
+	if errors.Is(err, redis.Nil) {
+		// 服务发现
+		ip, port, err := common.FindService()
+		if err != nil {
+			common.FailCode(c, common.SERVICE_FIND_ERROR)
+		}
+		//log.Println("为" + nanoid + "设置缓存：" + strconv.FormatUint(port, 10))
+		rc.Set(nanoid, strconv.FormatUint(port, 10), time.Minute*5)
+		rawURL = "http://" + ip + ":" + strconv.FormatUint(port, 10)
+	} else {
+		// 有缓存
+		rawURL = "http://" + "localhost" + ":" + strconv.FormatUint(redisPort, 10)
+		//log.Println("有缓存:" + strconv.FormatUint(redisPort, 10))
 	}
-	rawURL := "http://" + service + ":" + strconv.FormatUint(port, 10)
 	remote, err := url.Parse(rawURL)
 	if err != nil {
 		panic(err)
@@ -30,6 +45,7 @@ func CaptchaProxy(c *gin.Context) {
 	rw := c.Writer
 	req := c.Request
 	proxy.ServeHTTP(rw, req)
+
 }
 
 // UserLogin 用户登录

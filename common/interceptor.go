@@ -3,7 +3,6 @@ package common
 import (
 	"errors"
 	"github.com/gin-gonic/gin"
-	"golang_blog/model"
 	"gorm.io/gorm"
 	"strconv"
 )
@@ -30,7 +29,7 @@ func TokenInterceptor() gin.HandlerFunc {
 			c.Abort()
 			return
 		}
-		sqlUser := model.User{}
+		sqlUser := User{}
 		result := db.Where("id = ?", userId).Take(&sqlUser)
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 			FailCode(c, TOKEN_PARSE_ERROR)

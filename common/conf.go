@@ -8,10 +8,28 @@ import (
 	"log"
 )
 
+type commonConf struct {
+	ActiveConf string
+	ActivePort uint64
+}
+
+func InitConf() *commonConf {
+	ac := flag.String("conf", "dev", "激活的配置文件")
+	portAdd := flag.Uint64("port", 8088, "端口")
+	flag.Parse()
+	c := &commonConf{
+		ActiveConf: *ac,
+		ActivePort: *portAdd,
+	}
+	return c
+}
+
+var confs = InitConf()
+
+func GetConfs() *commonConf { return confs }
+
 func getActiveConf() string {
-	activeConf := flag.String("conf", "dev", "激活的配置文件")
-	flag.Parse() // 不Parse获取不到结果
-	return *activeConf
+	return confs.ActiveConf
 }
 
 func GetDBConf() *Conf {

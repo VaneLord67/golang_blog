@@ -7,7 +7,7 @@ import (
 const Addr = "localhost:6380"
 const Password = ""
 
-var RC = redisConnect() // RC stands for Redis Client
+var rc = redisConnect() // RC stands for Redis Client
 
 func redisConnect() *redis.Client {
 	client := redis.NewClient(&redis.Options{
@@ -16,4 +16,8 @@ func redisConnect() *redis.Client {
 		DB:       0,        // 默认数据库，默认是0
 	})
 	return client
+}
+
+func GetRC() *redis.Client {
+	return rc
 }
