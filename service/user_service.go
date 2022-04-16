@@ -6,7 +6,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/go-redis/redis"
 	"golang_blog/model"
-	"golang_blog/util"
 	"gorm.io/gorm"
 	"net/http/httputil"
 	"net/url"
@@ -54,15 +53,17 @@ func UserLogin(c *gin.Context) {
 		Username string `json:"username"`
 		Password string `json:"password"`
 	}
-	err := util.Bind(c, &u)
-	common.CheckErr(c, err)
+	if err := common.Bind(c, &u); err != nil {
+		common.CheckErr(c, err)
+		return
+	}
 	sqlUser := model.User{}
 	result := db.Where("username = ?", u.Username).Take(&sqlUser)
 	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 		common.FailCode(c, common.USER_NOT_EXISTS)
 		return
 	}
-	if sqlUser.Password != util.Md5Base64Encode(u.Password) {
+	if sqlUser.Password != common.Md5Base64Encode(u.Password) {
 		common.FailCode(c, common.PASSWORD_WRONG)
 		return
 	}
@@ -81,15 +82,17 @@ func UserRegister(c *gin.Context) {
 		Username string `json:"username"`
 		Password string `json:"password"`
 	}
-	err := util.Bind(c, &u)
-	common.CheckErr(c, err)
+	if err := common.Bind(c, &u); err != nil {
+		common.CheckErr(c, err)
+		return
+	}
 	sqlUser := model.User{}
 	result := db.Where("username = ?", u.Username).Take(&sqlUser)
 	if !errors.Is(result.Error, gorm.ErrRecordNotFound) {
 		common.FailCode(c, common.USER_ALREADY_EXISTS)
 		return
 	}
-	encodePassword := util.Md5Base64Encode(u.Password)
+	encodePassword := common.Md5Base64Encode(u.Password)
 	newUser := model.User{
 		Username: u.Username,
 		Password: encodePassword,

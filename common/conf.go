@@ -13,7 +13,7 @@ type commonConf struct {
 	ActivePort uint64
 }
 
-func InitConf() *commonConf {
+func initConf() *commonConf {
 	ac := flag.String("conf", "dev", "激活的配置文件")
 	portAdd := flag.Uint64("port", 8088, "端口")
 	flag.Parse()
@@ -24,7 +24,7 @@ func InitConf() *commonConf {
 	return c
 }
 
-var confs = InitConf()
+var confs = initConf()
 
 func GetConfs() *commonConf { return confs }
 

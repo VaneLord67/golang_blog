@@ -1,0 +1,15 @@
+package controller
+
+import (
+	"article_micro/service"
+	"common"
+	"github.com/gin-gonic/gin"
+)
+
+func ArticleController(r *gin.Engine) {
+	articleGroup := r.Group("/article")
+	articleGroup.Use(common.TokenInterceptor())
+	{
+		articleGroup.PUT("/article", service.CreateArticle)
+	}
+}
