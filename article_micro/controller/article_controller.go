@@ -7,9 +7,9 @@ import (
 )
 
 func ArticleController(r *gin.Engine) {
-	articleGroup := r.Group("/article")
+	articleGroup := r.Group("/article/")
 	articleGroup.Use(common.TokenInterceptor())
 	{
-		articleGroup.PUT("/article", service.CreateArticle)
+		articleGroup.PUT("", service.CreateArticle)
 	}
 }

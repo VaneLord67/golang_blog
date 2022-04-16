@@ -5,8 +5,8 @@ import (
 	"golang_blog/service"
 )
 
-// BaseController : 基础服务的路由
-func BaseController(r *gin.Engine) {
+// BaseProxy : 基础服务的路由
+func BaseProxy(r *gin.Engine) {
 	// 验证码基础服务
 	r.GET("/captcha", service.CaptchaProxy)
 	r.GET("/captcha/*path", service.CaptchaProxy)

@@ -24,7 +24,7 @@ func CaptchaProxy(c *gin.Context) {
 	// 没有缓存
 	if errors.Is(err, redis.Nil) {
 		// 服务发现
-		ip, port, err := common.FindService()
+		ip, port, err := common.FindService("captcha", "base")
 		if err != nil {
 			common.FailCode(c, common.SERVICE_FIND_ERROR)
 		}
