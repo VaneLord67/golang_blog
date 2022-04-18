@@ -8,12 +8,17 @@ import (
 	"gorm.io/gorm"
 	"log"
 	"strconv"
+	"sync"
 )
 
-var db = connect()
-
+// 单例db
+var db *gorm.DB
+var onceDB = sync.Once{} // golang提供的工具，目的是让某些代码只执行一次
 // GetDB : 用Get方法防止db变量被其他地方修改
-func GetDB() *gorm.DB { return db }
+func GetDB() *gorm.DB {
+	onceDB.Do(connect)
+	return db
+}
 
 type DatabaseConf struct {
 	Username string
@@ -23,9 +28,11 @@ type DatabaseConf struct {
 	Dbname   string
 }
 
-func initDatabaseConf() *DatabaseConf {
-	conf := GetDBConf()
-	return &DatabaseConf{
+var databaseConf *DatabaseConf
+
+func initDatabaseConf() {
+	conf := ReadYaml()
+	databaseConf = &DatabaseConf{
 		Username: conf.Database.Username,
 		Password: conf.Database.Password,
 		Host:     conf.Database.Host,
@@ -34,19 +41,23 @@ func initDatabaseConf() *DatabaseConf {
 	}
 }
 
-var databaseConf = initDatabaseConf()
+var onceDBConf = sync.Once{} // golang提供的工具，目的是让某些代码只执行一次
+func GetDBConf() *DatabaseConf {
+	onceDBConf.Do(initDatabaseConf)
+	return databaseConf
+}
 
-func connect() *gorm.DB {
+func connect() {
 	//通过数据库参数，拼接MYSQL DSN，即数据库连接串（数据源名称）
 	//MYSQL dsn格式： {username}:{password}@tcp({host}:{port})/{Dbname}?charset=utf8&parseTime=True&loc=Local
 	//类似{username}使用花括号包着的名字都是需要替换的参数
-	dsn := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=utf8&parseTime=True&loc=Local", databaseConf.Username, databaseConf.Password, databaseConf.Host, databaseConf.Port, databaseConf.Dbname)
+	dsn := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=utf8&parseTime=True&loc=Local", GetDBConf().Username, GetDBConf().Password, GetDBConf().Host, GetDBConf().Port, GetDBConf().Dbname)
 	//连接MYSQL
-	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
+	newDb, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 	if err != nil {
 		log.Fatal(err)
 	}
-	return db
+	db = newDb
 }
 
 func GetCurrentUser(c *gin.Context) model.User {

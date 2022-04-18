@@ -1,12 +1,38 @@
 package service
 
 import (
+	"article_micro/dao"
 	"common"
 	"common/model"
 	"github.com/gin-gonic/gin"
+	"strconv"
 )
 
 var db = common.GetDB()
+
+func Search(c *gin.Context) {
+	query := c.Query("query")
+	if query == "" {
+		common.FailCode(c, common.PARAMETER_PARSE_ERROR)
+		return
+	}
+	pageSize, err := strconv.Atoi(c.Query("pageSize"))
+	if err != nil {
+		common.FailCode(c, common.PARAMETER_PARSE_ERROR)
+		return
+	}
+	pageNum, err := strconv.Atoi(c.Query("pageNum"))
+	if err != nil {
+		common.FailCode(c, common.PARAMETER_PARSE_ERROR)
+		return
+	}
+	search, err := dao.Search(query, pageSize, pageNum)
+	if err != nil {
+		common.CheckErr(c, err)
+		return
+	}
+	common.SuccessWithData(c, search)
+}
 
 func CreateArticle(c *gin.Context) {
 	user := model.User{}
@@ -26,6 +52,11 @@ func CreateArticle(c *gin.Context) {
 		AuthorId: user.Id,
 	}
 	if err := db.Create(&newArticle).Error; err != nil {
+		common.CheckErr(c, err)
+		return
+	}
+	err := dao.Insert(&newArticle)
+	if err != nil {
 		common.CheckErr(c, err)
 		return
 	}

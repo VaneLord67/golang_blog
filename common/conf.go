@@ -6,6 +6,7 @@ import (
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
 	"log"
+	"sync"
 )
 
 type commonConf struct {
@@ -13,7 +14,7 @@ type commonConf struct {
 	ActivePort uint64
 }
 
-func initConf() *commonConf {
+func initConf() {
 	ac := flag.String("conf", "dev", "激活的配置文件")
 	portAdd := flag.Uint64("port", 8088, "端口")
 	flag.Parse()
@@ -21,18 +22,20 @@ func initConf() *commonConf {
 		ActiveConf: *ac,
 		ActivePort: *portAdd,
 	}
-	return c
+	confs = c
 }
 
-var confs = initConf()
-
-func GetConfs() *commonConf { return confs }
-
+// 单例的confs
+var confs *commonConf
+var onceConf = sync.Once{} // golang提供的工具，目的是让某些代码只执行一次
+func GetConfs() *commonConf {
+	onceConf.Do(initConf)
+	return confs
+}
 func getActiveConf() string {
-	return confs.ActiveConf
+	return GetConfs().ActiveConf
 }
-
-func GetDBConf() *Conf {
+func ReadYaml() *Conf {
 	activeConf := getActiveConf()
 	// 这里的路径是相对于命令执行的目录，所以是 ./
 	filename := "./conf-" + activeConf + ".yaml"

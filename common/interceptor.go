@@ -19,7 +19,7 @@ func TokenInterceptor() gin.HandlerFunc {
 			if err.Error() == "Token is expired" {
 				FailCode(c, TOKEN_EXPIRED)
 			} else {
-				FailWithMessage(c, err.Error())
+				FailCode(c, TOKEN_PARSE_ERROR)
 			}
 			c.Abort()
 			return

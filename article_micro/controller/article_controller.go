@@ -11,5 +11,7 @@ func ArticleController(r *gin.Engine) {
 	articleGroup.Use(common.TokenInterceptor())
 	{
 		articleGroup.PUT("", service.CreateArticle)
+		articleGroup.GET("/all", service.ArticleQueryByPage)
+		articleGroup.GET("/search", service.Search)
 	}
 }
