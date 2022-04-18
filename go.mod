@@ -51,3 +51,4 @@ require (
 )
 
 replace common => ./common
+replace common/model => ./common/model

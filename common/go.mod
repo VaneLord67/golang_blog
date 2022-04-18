@@ -1,4 +1,4 @@
-module golang_blog
+module common
 
 go 1.18
 

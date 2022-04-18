@@ -1,9 +1,9 @@
 package common
 
 import (
+	"common/model"
 	"context"
 	"github.com/olivere/elastic/v7"
-	"golang_blog/model"
 	"log"
 	"reflect"
 	"sync"

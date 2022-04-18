@@ -1,9 +1,9 @@
 package common
 
 import (
+	"common/model"
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"golang_blog/model"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"log"
