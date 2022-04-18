@@ -1,15 +1,16 @@
 package service
 
 import (
-	"article_micro/model"
 	"common"
+	"common/model"
 	"github.com/gin-gonic/gin"
 )
 
 var db = common.GetDB()
 
 func CreateArticle(c *gin.Context) {
-	user := common.GetCurrentUser(c)
+	user := model.User{}
+	user = common.GetCurrentUser(c)
 	var dto struct {
 		Title    string
 		Content  string
@@ -29,4 +30,13 @@ func CreateArticle(c *gin.Context) {
 		return
 	}
 	common.Success(c)
+}
+
+func ArticleQueryByPage(c *gin.Context) {
+	user := model.User{}
+	user = common.GetCurrentUser(c)
+	pageNum, pageSize := common.GetPageNumAndSize(c)
+	var articles []model.Article
+	page := common.SelectPage(db.Model(model.Article{}).Where("author_id = ?", user.Id), pageNum, pageSize, &articles)
+	common.SuccessWithData(c, page)
 }

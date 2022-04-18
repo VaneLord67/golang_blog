@@ -2,10 +2,10 @@ package service
 
 import (
 	"common"
+	"common/model"
 	"errors"
 	"github.com/gin-gonic/gin"
 	"github.com/go-redis/redis"
-	"golang_blog/model"
 	"gorm.io/gorm"
 	"net/http/httputil"
 	"net/url"
