@@ -53,7 +53,7 @@ func Search(query string, pageSize, pageNum int) ([]ArticleEs, error) {
 	return res, nil
 }
 
-func Update(article *model.Article) error {
+func UpdateES(article *model.Article) error {
 	_, err := common.GetESC().Update().
 		Index(indexName).
 		Id(strconv.Itoa(article.Id)).
@@ -65,10 +65,10 @@ func Update(article *model.Article) error {
 	return nil
 }
 
-func Delete(article *model.Article) error {
+func DeleteES(articleId int) error {
 	_, err := common.GetESC().Delete().
 		Index(indexName).
-		Id(strconv.Itoa(article.Id)).
+		Id(strconv.Itoa(articleId)).
 		Do(ctx)
 	if err != nil {
 		return err
@@ -76,7 +76,7 @@ func Delete(article *model.Article) error {
 	return nil
 }
 
-func Insert(article *model.Article) error {
+func InsertES(article *model.Article) error {
 	author := model.User{}
 	common.GetDB().Where("id = ?", article.AuthorId).Take(&author)
 	msg := ArticleEs{
@@ -109,7 +109,7 @@ func CreateArticleIndex() {
 		  "id": {
 			"type": "integer"
 		  },
-          "title": {
+         "title": {
 			"type": "text"
 		  },
 		  "content": {
@@ -124,13 +124,13 @@ func CreateArticleIndex() {
 		}
 	  }
 	}`
-	// 首先检测下weibo索引是否存在
+	// 首先检测下索引是否存在
 	exists, err := common.GetESC().IndexExists(indexName).Do(common.GetCTX())
 	if err != nil {
 		log.Fatal(err)
 	}
 	if !exists {
-		// weibo索引不存在，则创建一个
+		// 索引不存在，则创建一个
 		_, err := common.GetESC().CreateIndex(indexName).BodyString(mapping).Do(common.GetCTX())
 		if err != nil {
 			log.Fatal(err)

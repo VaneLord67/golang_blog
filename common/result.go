@@ -20,10 +20,10 @@ func SuccessWithData(c *gin.Context, data interface{}) {
 	c.JSON(200, result)
 }
 
-func SuccessWithMessageAndData(c *gin.Context, message string, data interface{}) {
-	result := Result{Code: SUCCESS.Code, Message: message, Data: data}
-	c.JSON(200, result)
-}
+//func SuccessWithMessageAndData(c *gin.Context, message string, data interface{}) {
+//	result := Result{Code: SUCCESS.Code, Message: message, Data: data}
+//	c.JSON(200, result)
+//}
 
 func Fail(c *gin.Context) {
 	result := Result{Code: FAIL.Code, Message: FAIL.Message}
@@ -43,5 +43,7 @@ func FailWithMessage(c *gin.Context, message string) {
 func CheckErr(c *gin.Context, err error) {
 	if err != nil {
 		FailWithMessage(c, err.Error())
+		c.Abort()
+		return
 	}
 }
