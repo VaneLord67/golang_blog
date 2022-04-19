@@ -2,6 +2,7 @@ package common
 
 import (
 	"common/model"
+	"errors"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"gorm.io/driver/mysql"
@@ -87,7 +88,10 @@ func GetPageNumAndSize(c *gin.Context) (int, int) {
 }
 
 // SelectPage : tx要写上查询条件并绑定上model。dest要传指针进来
-func SelectPage(tx *gorm.DB, pageNum int, pageSize int, dest interface{}) Page {
+func SelectPage(tx *gorm.DB, pageNum int, pageSize int, dest interface{}) (Page, error) {
+	if CheckPageParam(pageSize, pageNum) == false {
+		return Page{}, errors.New("page param error")
+	}
 	offset := (pageNum - 1) * pageSize
 	var cnt int64
 	tx.Count(&cnt)
@@ -99,5 +103,5 @@ func SelectPage(tx *gorm.DB, pageNum int, pageSize int, dest interface{}) Page {
 		Total:     cnt,
 		List:      dest,
 	}
-	return page
+	return page, nil
 }

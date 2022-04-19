@@ -68,6 +68,10 @@ func ArticleQueryByPage(c *gin.Context) {
 	user = common.GetCurrentUser(c)
 	pageNum, pageSize := common.GetPageNumAndSize(c)
 	var articles []model.Article
-	page := common.SelectPage(db.Model(model.Article{}).Where("author_id = ?", user.Id), pageNum, pageSize, &articles)
+	page, err := common.SelectPage(db.Model(model.Article{}).Where("author_id = ?", user.Id), pageNum, pageSize, &articles)
+	if err != nil {
+		common.CheckErr(c, err)
+		return
+	}
 	common.SuccessWithData(c, page)
 }

@@ -3,6 +3,7 @@ package dao
 import (
 	"common"
 	"common/model"
+	"errors"
 	"github.com/olivere/elastic/v7"
 	"log"
 	"reflect"
@@ -22,6 +23,9 @@ type ArticleEs struct {
 }
 
 func Search(query string, pageSize, pageNum int) ([]ArticleEs, error) {
+	if common.CheckPageParam(pageSize, pageNum) == false {
+		return nil, errors.New("page param err")
+	}
 	offset := (pageNum - 1) * pageSize
 	booleanQuery := elastic.NewBoolQuery()
 	matchTitleQuery := elastic.NewMatchQuery("title", query)
