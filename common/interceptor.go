@@ -31,7 +31,7 @@ func TokenInterceptor() gin.HandlerFunc {
 			return
 		}
 		sqlUser := model.User{}
-		result := db.Where("id = ?", userId).Take(&sqlUser)
+		result := GetDB().Where("id = ?", userId).Take(&sqlUser)
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 			FailCode(c, TOKEN_PARSE_ERROR)
 			c.Abort() // 不调用该请求的剩余处理程序

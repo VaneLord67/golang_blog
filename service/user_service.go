@@ -58,7 +58,7 @@ func UserLogin(c *gin.Context) {
 		return
 	}
 	sqlUser := model.User{}
-	result := db.Where("username = ?", u.Username).Take(&sqlUser)
+	result := common.GetDB().Where("username = ?", u.Username).Take(&sqlUser)
 	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 		common.FailCode(c, common.USER_NOT_EXISTS)
 		return

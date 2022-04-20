@@ -15,6 +15,6 @@ func ArticleController(r *gin.Engine) {
 		articleGroup.GET("/search", service.Search)
 		articleGroup.DELETE("/article", service.Delete)
 		articleGroup.POST("/article", service.Update)
-		articleGroup.GET("/article", service.GetOne)
+		articleGroup.GET("", service.GetOne)
 	}
 }

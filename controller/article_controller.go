@@ -6,9 +6,9 @@ import (
 )
 
 func ArticleProxy(r *gin.Engine) {
-	userGroup := r.Group("/article")
+	articleGroup := r.Group("/article")
 	{
-		userGroup.Any("/*path", articleService)
+		articleGroup.Any("/*path", articleService)
 	}
 }
 
