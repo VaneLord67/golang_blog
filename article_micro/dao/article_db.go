@@ -3,6 +3,18 @@ package dao
 import "common"
 import "common/model"
 
+func GetAuthorNameByArticleId(articleId int) (string, error) {
+	sqlArticle := model.Article{}
+	sqlAuthor := model.User{}
+	if err := common.GetDB().Where("id = ?", articleId).Take(&sqlArticle).Error; err != nil {
+		return "", err
+	}
+	if err := common.GetDB().Where("id = ?", sqlArticle.AuthorId).Take(&sqlAuthor).Error; err != nil {
+		return "", err
+	}
+	return sqlAuthor.Username, nil
+}
+
 func DeleteOneArticle(articleId int) error {
 	if err := common.GetDB().Where("id = ?", articleId).Delete(&model.Article{}).Error; err != nil {
 		return err

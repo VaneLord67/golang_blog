@@ -9,7 +9,7 @@ import (
 
 const ACCESS_SECRET = "HUSTer_D724"
 const HEADER = "Authorization"
-const DURATION = time.Minute * 15
+const DURATION = time.Hour * 1
 
 func CreateToken(userId int) (string, error) {
 	var err error

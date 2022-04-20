@@ -24,7 +24,19 @@ func GetOne(c *gin.Context) {
 		common.CheckErr(c, err)
 		return
 	}
-	common.SuccessWithData(c, article)
+	authorName, err := dao.GetAuthorNameByArticleId(article.Id)
+	if err != nil {
+		common.CheckErr(c, err)
+		return
+	}
+	vo := struct {
+		Article    *model.Article
+		AuthorName string
+	}{
+		Article:    article,
+		AuthorName: authorName,
+	}
+	common.SuccessWithData(c, vo)
 }
 
 func Update(c *gin.Context) {
