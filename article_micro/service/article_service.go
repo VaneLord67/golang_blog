@@ -54,14 +54,16 @@ func Update(c *gin.Context) {
 }
 
 func Delete(c *gin.Context) {
-	var dto struct {
-		Id int
+	idStr, ok := c.GetQuery("id")
+	if !ok {
+		common.FailCode(c, common.PARAMETER_PARSE_ERROR)
+		return
 	}
-	if err := common.Bind(c, &dto); err != nil {
+	articleId, err := strconv.Atoi(idStr)
+	if err != nil {
 		common.CheckErr(c, err)
 		return
 	}
-	articleId := dto.Id
 	if err := dao.DeleteOneArticle(articleId); err != nil {
 		common.CheckErr(c, err)
 		return
