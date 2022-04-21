@@ -2,7 +2,7 @@
 
 Golang语言实现一个博客
 
-技术栈gin+gorm(mysql)+nacos+...
+技术栈Gin+Gorm(MySQL)+Nacos+Redis+ElasticSearch+...
 
 用于实践微服务、分布式等前沿后端技术
 
