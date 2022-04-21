@@ -89,10 +89,6 @@ func Delete(c *gin.Context) {
 
 func Search(c *gin.Context) {
 	query := c.Query("query")
-	if query == "" {
-		common.FailCode(c, common.PARAMETER_PARSE_ERROR)
-		return
-	}
 	pageSize, err := strconv.Atoi(c.Query("pageSize"))
 	if err != nil {
 		common.FailCode(c, common.PARAMETER_PARSE_ERROR)

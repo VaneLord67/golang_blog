@@ -27,6 +27,30 @@ func Search(query string, pageSize, pageNum int) ([]ArticleEs, error) {
 		return nil, errors.New("page param err")
 	}
 	offset := (pageNum - 1) * pageSize
+	// 对空字符串的情况，随机从ES中选取。如果不做这个特殊处理，则会搜索不到结果
+	if query == "" {
+		booleanQuery := elastic.NewBoolQuery()
+		searchResult, err := common.GetESC().Search().
+			Index(indexName).    // 设置索引名
+			Query(booleanQuery). // 设置查询条件
+			From(offset).        // 设置分页参数 - 起始偏移量，从第0行记录开始
+			Size(pageSize).      // 设置分页参数 - 每页大小
+			Do(ctx)
+		if err != nil {
+			return nil, err
+		}
+		var res []ArticleEs
+		if searchResult.TotalHits() > 0 {
+			var cur ArticleEs
+			for _, item := range searchResult.Each(reflect.TypeOf(cur)) {
+				// 转换对象
+				if t, ok := item.(ArticleEs); ok {
+					res = append(res, t)
+				}
+			}
+		}
+		return res, nil
+	}
 	booleanQuery := elastic.NewBoolQuery()
 	matchTitleQuery := elastic.NewMatchQuery("title", query)
 	matchContentQuery := elastic.NewMatchQuery("content", query)
