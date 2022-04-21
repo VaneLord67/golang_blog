@@ -8,6 +8,75 @@ import (
 	"strconv"
 )
 
+func UpdateContent(c *gin.Context) {
+	currentUser := common.GetCurrentUser(c)
+	var dto struct {
+		Content   string
+		ArticleId int
+	}
+	if err := common.Bind(c, &dto); err != nil {
+		common.CheckErr(c, err)
+		return
+	}
+	permission := dao.GetPermission(currentUser.Id, dto.ArticleId)
+	if !permission {
+		common.FailCode(c, common.PERMISSON_DENIED)
+		return
+	}
+	if err := dao.UpdateContent(dto.ArticleId, dto.Content); err != nil {
+		common.CheckErr(c, err)
+		return
+	}
+	if err := dao.UpdateContentES(dto.ArticleId, dto.Content); err != nil {
+		common.CheckErr(c, err)
+		return
+	}
+	common.Success(c)
+}
+
+func UpdateTitle(c *gin.Context) {
+	currentUser := common.GetCurrentUser(c)
+	var dto struct {
+		Title     string
+		ArticleId int
+	}
+	err := common.Bind(c, &dto)
+	if err != nil {
+		common.CheckErr(c, err)
+		return
+	}
+	permission := dao.GetPermission(currentUser.Id, dto.ArticleId)
+	if !permission {
+		common.FailCode(c, common.PERMISSON_DENIED)
+		return
+	}
+	if err = dao.UpdateTitle(dto.ArticleId, dto.Title); err != nil {
+		common.CheckErr(c, err)
+		return
+	}
+	if err = dao.UpdateTitleES(dto.ArticleId, dto.Title); err != nil {
+		common.CheckErr(c, err)
+		return
+	}
+	common.Success(c)
+	return
+}
+
+func GetPermission(c *gin.Context) {
+	currentUser := common.GetCurrentUser(c)
+	articleIdStr, ok := c.GetQuery("articleId")
+	if !ok {
+		common.FailCode(c, common.PARAMETER_PARSE_ERROR)
+		return
+	}
+	articleId, err := strconv.Atoi(articleIdStr)
+	if err != nil {
+		common.CheckErr(c, err)
+		return
+	}
+	common.SuccessWithData(c, dao.GetPermission(currentUser.Id, articleId))
+}
+
 func GetOne(c *gin.Context) {
 	idStr, ok := c.GetQuery("id")
 	if !ok {
@@ -67,6 +136,7 @@ func Update(c *gin.Context) {
 
 func Delete(c *gin.Context) {
 	idStr, ok := c.GetQuery("id")
+	currentUser := common.GetCurrentUser(c)
 	if !ok {
 		common.FailCode(c, common.PARAMETER_PARSE_ERROR)
 		return
@@ -76,7 +146,7 @@ func Delete(c *gin.Context) {
 		common.CheckErr(c, err)
 		return
 	}
-	if err := dao.DeleteOneArticle(articleId); err != nil {
+	if err := dao.DeleteOneArticle(articleId, currentUser.Id); err != nil {
 		common.CheckErr(c, err)
 		return
 	}
@@ -99,7 +169,7 @@ func Search(c *gin.Context) {
 		common.FailCode(c, common.PARAMETER_PARSE_ERROR)
 		return
 	}
-	search, err := dao.Search(query, pageSize, pageNum)
+	search, err, cnt := dao.Search(query, pageSize, pageNum)
 	if err != nil {
 		common.CheckErr(c, err)
 		return
@@ -118,7 +188,14 @@ func Search(c *gin.Context) {
 		}
 		vos = append(vos, vo)
 	}
-	common.SuccessWithData(c, vos)
+	vosType := struct {
+		VoList    []voType
+		TotalPage int
+	}{
+		VoList:    vos,
+		TotalPage: cnt/pageSize + 1,
+	}
+	common.SuccessWithData(c, vosType)
 }
 
 func CreateArticle(c *gin.Context) {
@@ -169,7 +246,7 @@ func ArticleQueryByPage(c *gin.Context) {
 	}
 	var vos []voType
 	for _, article := range *sqlArticles {
-		authorName, err := dao.GetAuthorNameByArticleId(article.AuthorId)
+		authorName, err := dao.GetAuthorNameByArticleId(article.Id)
 		if err != nil {
 			common.CheckErr(c, err)
 			return

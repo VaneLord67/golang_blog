@@ -22,9 +22,33 @@ type ArticleEs struct {
 	Suggest        *elastic.SuggestField `json:"suggest_field,omitempty"`
 }
 
-func Search(query string, pageSize, pageNum int) ([]ArticleEs, error) {
+func UpdateContentES(articleId int, content string) error {
+	_, err := common.GetESC().Update().
+		Index(indexName).
+		Id(strconv.Itoa(articleId)).
+		Doc(map[string]interface{}{"content": content}).
+		Do(ctx)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func UpdateTitleES(articleId int, title string) error {
+	_, err := common.GetESC().Update().
+		Index(indexName).
+		Id(strconv.Itoa(articleId)).
+		Doc(map[string]interface{}{"title": title}).
+		Do(ctx)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func Search(query string, pageSize, pageNum int) ([]ArticleEs, error, int) {
 	if common.CheckPageParam(pageSize, pageNum) == false {
-		return nil, errors.New("page param err")
+		return nil, errors.New("page param err"), -1
 	}
 	offset := (pageNum - 1) * pageSize
 	// 对空字符串的情况，随机从ES中选取。如果不做这个特殊处理，则会搜索不到结果
@@ -37,7 +61,7 @@ func Search(query string, pageSize, pageNum int) ([]ArticleEs, error) {
 			Size(pageSize).      // 设置分页参数 - 每页大小
 			Do(ctx)
 		if err != nil {
-			return nil, err
+			return nil, err, -1
 		}
 		var res []ArticleEs
 		if searchResult.TotalHits() > 0 {
@@ -49,7 +73,7 @@ func Search(query string, pageSize, pageNum int) ([]ArticleEs, error) {
 				}
 			}
 		}
-		return res, nil
+		return res, nil, int(searchResult.TotalHits())
 	}
 	booleanQuery := elastic.NewBoolQuery()
 	matchTitleQuery := elastic.NewMatchQuery("title", query)
@@ -62,7 +86,7 @@ func Search(query string, pageSize, pageNum int) ([]ArticleEs, error) {
 		Size(pageSize).                                                                   // 设置分页参数 - 每页大小
 		Do(ctx)
 	if err != nil {
-		return nil, err
+		return nil, err, -1
 	}
 	var res []ArticleEs
 	if searchResult.TotalHits() > 0 {
@@ -74,7 +98,7 @@ func Search(query string, pageSize, pageNum int) ([]ArticleEs, error) {
 			}
 		}
 	}
-	return res, nil
+	return res, nil, int(searchResult.TotalHits())
 }
 
 func UpdateES(article *model.Article) error {

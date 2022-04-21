@@ -5,8 +5,13 @@ type ResultCode struct {
 	Message string
 }
 
+func (r ResultCode) Error() string {
+	return r.Message
+}
+
 // ResultCode 枚举
 var SUCCESS = ResultCode{1, "操作成功"}
+var PERMISSON_DENIED = ResultCode{2, "权限不足"}
 var FAIL = ResultCode{-1, "操作失败"}
 var PASSWORD_WRONG = ResultCode{Code: 100, Message: "密码错误"}
 var USER_NOT_EXISTS = ResultCode{Code: 101, Message: "用户不存在"}
