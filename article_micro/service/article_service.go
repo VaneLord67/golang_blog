@@ -145,10 +145,33 @@ func ArticleQueryByPage(c *gin.Context) {
 	user = common.GetCurrentUser(c)
 	pageNum, pageSize := common.GetPageNumAndSize(c)
 	var articles []model.Article
-	page, err := common.SelectPage(common.GetDB().Model(model.Article{}).Where("author_id = ?", user.Id), pageNum, pageSize, &articles)
+	page, err := common.SelectPage(common.GetDB().Model(model.Article{}).Where("author_id = ?", user.Id).Select("id, title, author_id"), pageNum, pageSize, &articles)
 	if err != nil {
 		common.CheckErr(c, err)
 		return
 	}
+	sqlArticles := page.List.(*[]model.Article)
+	type voType struct {
+		Id         int
+		Title      string
+		AuthorId   int
+		AuthorName string
+	}
+	var vos []voType
+	for _, article := range *sqlArticles {
+		authorName, err := dao.GetAuthorNameByArticleId(article.AuthorId)
+		if err != nil {
+			common.CheckErr(c, err)
+			return
+		}
+		vo := voType{
+			Id:         article.Id,
+			Title:      article.Title,
+			AuthorId:   article.AuthorId,
+			AuthorName: authorName,
+		}
+		vos = append(vos, vo)
+	}
+	page.List = vos
 	common.SuccessWithData(c, page)
 }
