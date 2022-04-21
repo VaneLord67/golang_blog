@@ -1,6 +1,7 @@
 package main
 
 import (
+	"common"
 	"fmt"
 	"github.com/nacos-group/nacos-sdk-go/clients"
 	"github.com/nacos-group/nacos-sdk-go/common/constant"
@@ -11,7 +12,7 @@ import (
 
 func TestFindService(t *testing.T) {
 	clientConfig := constant.ClientConfig{
-		NamespaceId:         "f7f6dce8-6264-46ef-8561-beeb8026f213", // 如果需要支持多namespace，我们可以场景多个client,它们有不同的NamespaceId。当namespace是public时，此处填空字符串。
+		NamespaceId:         common.GetNacosConf().NamespaceId, // 如果需要支持多namespace，我们可以场景多个client,它们有不同的NamespaceId。当namespace是public时，此处填空字符串。
 		TimeoutMs:           5000,
 		NotLoadCacheAtStart: true,
 	}
@@ -48,7 +49,7 @@ func TestFindService(t *testing.T) {
 
 func TestCreateService(t *testing.T) {
 	clientConfig := constant.ClientConfig{
-		NamespaceId:         "f7f6dce8-6264-46ef-8561-beeb8026f213", // 如果需要支持多namespace，我们可以场景多个client,它们有不同的NamespaceId。当namespace是public时，此处填空字符串。
+		NamespaceId:         common.GetNacosConf().NamespaceId, // 如果需要支持多namespace，我们可以场景多个client,它们有不同的NamespaceId。当namespace是public时，此处填空字符串。
 		TimeoutMs:           5000,
 		NotLoadCacheAtStart: true,
 	}

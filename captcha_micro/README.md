@@ -4,10 +4,6 @@
 
 服务注册到Nacos中，服务信息如下：
 
-命名空间：golang_blog
-
-命名空间ID：f7f6dce8-6264-46ef-8561-beeb8026f213
-
 服务名：captcha
 服务组：base
 

@@ -5,23 +5,48 @@ import (
 	"github.com/nacos-group/nacos-sdk-go/common/constant"
 	"github.com/nacos-group/nacos-sdk-go/vo"
 	"log"
+	"sync"
 )
+
+type NacosConf struct {
+	Host        string
+	Port        int64
+	NamespaceId string
+}
+
+var nacosConf *NacosConf
+
+func initNacosConf() {
+	conf := ReadYaml()
+	nacosConf = &NacosConf{
+		Host:        conf.Nacos.Host,
+		Port:        conf.Nacos.Port,
+		NamespaceId: conf.Nacos.NamespaceId,
+	}
+}
+
+var onceNacos = sync.Once{}
+
+func GetNacosConf() *NacosConf {
+	onceNacos.Do(initNacosConf)
+	return nacosConf
+}
 
 func CreateService(serviceName, groupName, ip string, port uint64) bool {
 	if groupName == "" {
 		groupName = "DEFAULT_GROUP"
 	}
 	var clientConfig = constant.ClientConfig{
-		NamespaceId:         "f7f6dce8-6264-46ef-8561-beeb8026f213", // 如果需要支持多namespace，我们可以场景多个client,它们有不同的NamespaceId。当namespace是public时，此处填空字符串。
+		NamespaceId:         GetNacosConf().NamespaceId, // 如果需要支持多namespace，我们可以场景多个client,它们有不同的NamespaceId。当namespace是public时，此处填空字符串。
 		TimeoutMs:           5000,
 		LogLevel:            "warn",
 		NotLoadCacheAtStart: true,
 	}
 	var serverConfigs = []constant.ServerConfig{
 		{
-			IpAddr:      "localhost",
+			IpAddr:      GetNacosConf().Host,
 			ContextPath: "/nacos",
-			Port:        8848,
+			Port:        uint64(GetNacosConf().Port),
 			Scheme:      "http",
 		},
 	}
@@ -56,16 +81,16 @@ func FindService(serviceName string, groupName string) (ip string, port uint64, 
 		groupName = "DEFAULT_GROUP"
 	}
 	var clientConfig = constant.ClientConfig{
-		NamespaceId:         "f7f6dce8-6264-46ef-8561-beeb8026f213", // 如果需要支持多namespace，我们可以场景多个client,它们有不同的NamespaceId。当namespace是public时，此处填空字符串。
+		NamespaceId:         GetNacosConf().NamespaceId, // 如果需要支持多namespace，我们可以场景多个client,它们有不同的NamespaceId。当namespace是public时，此处填空字符串。
 		TimeoutMs:           5000,
 		LogLevel:            "warn",
 		NotLoadCacheAtStart: true,
 	}
 	var serverConfigs = []constant.ServerConfig{
 		{
-			IpAddr:      "localhost",
+			IpAddr:      GetNacosConf().Host,
 			ContextPath: "/nacos",
-			Port:        8848,
+			Port:        uint64(GetNacosConf().Port),
 			Scheme:      "http",
 		},
 	}

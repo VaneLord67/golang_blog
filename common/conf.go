@@ -54,6 +54,11 @@ type Conf struct {
 		Password string `yaml:"password"`
 		DbName   string `yaml:"dbName"`
 	}
+	Nacos struct {
+		Host        string `yaml:"host"`
+		Port        int64  `yaml:"port"`
+		NamespaceId string `yaml:"namespaceId"`
+	}
 }
 
 func readConf(filename string) (*Conf, error) {

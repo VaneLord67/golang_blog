@@ -2,7 +2,6 @@ package main
 
 import (
 	"captcha_micro/controller"
-	"captcha_micro/service"
 	"common"
 	"github.com/gin-gonic/gin"
 	"log"
@@ -12,7 +11,7 @@ import (
 func main() {
 	conf := common.GetConfs()
 	Port := conf.ActivePort
-	ok := service.CreateService(Port) // 服务注册
+	ok := common.CreateService("captcha", "base", "localhost", Port)
 	if !ok {
 		log.Fatal("服务注册失败")
 	}
