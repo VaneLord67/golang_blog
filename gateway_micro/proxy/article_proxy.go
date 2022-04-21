@@ -1,4 +1,4 @@
-package controller
+package proxy
 
 import (
 	"common"

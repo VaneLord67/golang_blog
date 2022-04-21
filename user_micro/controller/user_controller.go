@@ -2,7 +2,7 @@ package controller
 
 import (
 	"github.com/gin-gonic/gin"
-	"golang_blog/service"
+	"user_micro/service"
 )
 
 func UserController(r *gin.Engine) {
