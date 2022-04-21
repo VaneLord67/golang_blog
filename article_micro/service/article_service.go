@@ -108,7 +108,21 @@ func Search(c *gin.Context) {
 		common.CheckErr(c, err)
 		return
 	}
-	common.SuccessWithData(c, search)
+	type voType struct {
+		Id         int
+		Title      string
+		AuthorName string
+	}
+	var vos []voType
+	for _, ele := range search {
+		vo := voType{
+			Id:         ele.Id,
+			Title:      ele.Title,
+			AuthorName: ele.AuthorUsername,
+		}
+		vos = append(vos, vo)
+	}
+	common.SuccessWithData(c, vos)
 }
 
 func CreateArticle(c *gin.Context) {
