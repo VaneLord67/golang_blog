@@ -8,6 +8,7 @@ import (
 
 func main() {
 	r := gin.Default()
+	r.Use(common.Cors())
 	// 设置API代理
 	proxy.APIProxy(r)
 	// 服务注册
