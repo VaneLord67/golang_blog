@@ -188,12 +188,18 @@ func Search(c *gin.Context) {
 		}
 		vos = append(vos, vo)
 	}
+	var totalPage int
+	if cnt%pageSize == 0 {
+		totalPage = cnt / pageSize
+	} else {
+		totalPage = cnt/pageSize + 1
+	}
 	vosType := struct {
 		VoList    []voType
 		TotalPage int
 	}{
 		VoList:    vos,
-		TotalPage: cnt/pageSize + 1,
+		TotalPage: totalPage,
 	}
 	common.SuccessWithData(c, vosType)
 }

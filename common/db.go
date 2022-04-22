@@ -96,10 +96,16 @@ func SelectPage(tx *gorm.DB, pageNum int, pageSize int, dest interface{}) (Page,
 	var cnt int64
 	tx.Count(&cnt)
 	tx.Offset(offset).Limit(pageSize).Find(dest)
+	var totalPage int
+	if cnt%int64(pageSize) == 0 {
+		totalPage = int(cnt / int64(pageSize))
+	} else {
+		totalPage = int(cnt/int64(pageSize)) + 1
+	}
 	page := Page{
 		PageSize:  pageSize,
 		PageNum:   pageNum,
-		TotalPage: int(cnt/int64(pageSize) + int64(1)),
+		TotalPage: totalPage,
 		Total:     cnt,
 		List:      dest,
 	}
