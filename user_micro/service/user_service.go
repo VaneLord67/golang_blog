@@ -37,6 +37,7 @@ func IsLogin(c *gin.Context) {
 		common.SuccessWithData(c, vo)
 		return
 	}
+	vo.IsLogin = true
 	common.SuccessWithData(c, vo)
 }
 
