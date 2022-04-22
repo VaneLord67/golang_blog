@@ -14,8 +14,8 @@ var db = common.GetDB()
 
 func IsLogin(c *gin.Context) {
 	vo := struct {
-		isLogin bool
-	}{isLogin: false}
+		IsLogin bool
+	}{IsLogin: false}
 	token := c.Request.Header.Get(common.HEADER)
 	if token == "" {
 		common.SuccessWithData(c, vo)
