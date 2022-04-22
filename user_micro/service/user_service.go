@@ -6,10 +6,39 @@ import (
 	"errors"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
+	"strconv"
 )
 
 // 注入
 var db = common.GetDB()
+
+func IsLogin(c *gin.Context) {
+	vo := struct {
+		isLogin bool
+	}{isLogin: false}
+	token := c.Request.Header.Get(common.HEADER)
+	if token == "" {
+		common.SuccessWithData(c, vo)
+		return
+	}
+	userIdStr, err := common.ParseToken(token)
+	if err != nil {
+		common.SuccessWithData(c, vo)
+		return
+	}
+	userId, err := strconv.Atoi(userIdStr)
+	if err != nil {
+		common.SuccessWithData(c, vo)
+		return
+	}
+	sqlUser := model.User{}
+	result := common.GetDB().Where("id = ?", userId).Take(&sqlUser)
+	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+		common.SuccessWithData(c, vo)
+		return
+	}
+	common.SuccessWithData(c, vo)
+}
 
 // UserLogin 用户登录
 func UserLogin(c *gin.Context) {
