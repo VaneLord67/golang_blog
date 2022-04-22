@@ -13,7 +13,7 @@ func main() {
 	//r.Use(common.Cors())
 	//gin.SetMode(gin.ReleaseMode) // 设置release模式，不会打印出调试日志
 	// 设置路由
-	controller.ArticleController(r)
+	controller.ArticleMicroControllers(r)
 	// 服务注册
 	port := common.GetConfs().ActivePort
 	common.CreateService("article", "article", "localhost", port)
