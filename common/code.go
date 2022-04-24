@@ -21,3 +21,4 @@ var TOKEN_PARSE_ERROR = ResultCode{Code: 104, Message: "jwt解析出错"}
 var TOKEN_EXPIRED = ResultCode{Code: 105, Message: "jwt过期"}
 var PARAMETER_PARSE_ERROR = ResultCode{Code: 106, Message: "参数解析异常"}
 var SERVICE_FIND_ERROR = ResultCode{Code: 107, Message: "服务发现失败"}
+var CAPTCHA_ERROR = ResultCode{Code: 108, Message: "验证码错误"}
