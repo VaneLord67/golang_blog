@@ -4,7 +4,9 @@ import (
 	"article_micro/dao"
 	"common"
 	"common/model"
+	"errors"
 	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 	"strconv"
 )
 
@@ -63,18 +65,34 @@ func UpdateTitle(c *gin.Context) {
 }
 
 func GetPermission(c *gin.Context) {
-	currentUser := common.GetCurrentUser(c)
+	token := c.Request.Header.Get(common.HEADER)
+	userIdStr, err := common.ParseToken(token)
+	if err != nil {
+		common.SuccessWithData(c, false)
+		return
+	}
+	userId, err := strconv.Atoi(userIdStr)
+	if err != nil {
+		common.SuccessWithData(c, false)
+		return
+	}
+	sqlUser := model.User{}
+	result := common.GetDB().Where("id = ?", userId).Take(&sqlUser)
+	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+		common.SuccessWithData(c, false)
+		return
+	}
 	articleIdStr, ok := c.GetQuery("articleId")
 	if !ok {
-		common.FailCode(c, common.PARAMETER_PARSE_ERROR)
+		common.SuccessWithData(c, false)
 		return
 	}
 	articleId, err := strconv.Atoi(articleIdStr)
 	if err != nil {
-		common.CheckErr(c, err)
+		common.SuccessWithData(c, false)
 		return
 	}
-	common.SuccessWithData(c, dao.GetPermission(currentUser.Id, articleId))
+	common.SuccessWithData(c, dao.GetPermission(sqlUser.Id, articleId))
 }
 
 func GetOne(c *gin.Context) {

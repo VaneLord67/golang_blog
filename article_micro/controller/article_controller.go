@@ -11,6 +11,7 @@ func articleController(r *gin.Engine) {
 	{
 		articleGroup.GET("/search", service.Search)
 		articleGroup.GET("", service.GetOne)
+		articleGroup.GET("/permission", service.GetPermission)
 	}
 }
 
@@ -22,7 +23,6 @@ func articleRequireLoginController(r *gin.Engine) {
 		articleGroup.GET("/all", service.ArticleQueryByPage)
 		articleGroup.DELETE("", service.Delete)
 		articleGroup.POST("/article", service.Update)
-		articleGroup.GET("/permission", service.GetPermission)
 		articleGroup.POST("/title", service.UpdateTitle)
 		articleGroup.POST("/content", service.UpdateContent)
 	}

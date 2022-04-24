@@ -63,6 +63,11 @@ func connect() {
 
 func GetCurrentUser(c *gin.Context) model.User {
 	currentUser, _ := c.Get(UserKey)
+	if currentUser == nil {
+		return model.User{
+			Id: -1,
+		}
+	}
 	user := currentUser.(model.User)
 	return user
 }
