@@ -2,6 +2,7 @@ package common
 
 import (
 	"github.com/nacos-group/nacos-sdk-go/clients"
+	"github.com/nacos-group/nacos-sdk-go/clients/naming_client"
 	"github.com/nacos-group/nacos-sdk-go/common/constant"
 	"github.com/nacos-group/nacos-sdk-go/vo"
 	"log"
@@ -32,10 +33,10 @@ func GetNacosConf() *NacosConf {
 	return nacosConf
 }
 
-func CreateService(serviceName, groupName, ip string, port uint64) bool {
-	if groupName == "" {
-		groupName = "DEFAULT_GROUP"
-	}
+var onceNacosClient = sync.Once{}
+var nacosNamingClient naming_client.INamingClient
+
+func createNNC() {
 	var clientConfig = constant.ClientConfig{
 		NamespaceId:         GetNacosConf().NamespaceId, // 如果需要支持多namespace，我们可以场景多个client,它们有不同的NamespaceId。当namespace是public时，此处填空字符串。
 		TimeoutMs:           5000,
@@ -60,7 +61,18 @@ func CreateService(serviceName, groupName, ip string, port uint64) bool {
 	if err != nil {
 		log.Fatal(err)
 	}
-	success, err := namingClient.RegisterInstance(vo.RegisterInstanceParam{
+	nacosNamingClient = namingClient
+}
+func GetNNC() naming_client.INamingClient {
+	onceNacosClient.Do(createNNC)
+	return nacosNamingClient
+}
+
+func CreateService(serviceName, groupName, ip string, port uint64) bool {
+	if groupName == "" {
+		groupName = "DEFAULT_GROUP"
+	}
+	success, err := GetNNC().RegisterInstance(vo.RegisterInstanceParam{
 		Ip:          ip,
 		Port:        port,
 		ServiceName: serviceName,
@@ -80,34 +92,9 @@ func FindService(serviceName string, groupName string) (ip string, port uint64, 
 	if groupName == "" {
 		groupName = "DEFAULT_GROUP"
 	}
-	var clientConfig = constant.ClientConfig{
-		NamespaceId:         GetNacosConf().NamespaceId, // 如果需要支持多namespace，我们可以场景多个client,它们有不同的NamespaceId。当namespace是public时，此处填空字符串。
-		TimeoutMs:           5000,
-		LogLevel:            "warn",
-		NotLoadCacheAtStart: true,
-	}
-	var serverConfigs = []constant.ServerConfig{
-		{
-			IpAddr:      GetNacosConf().Host,
-			ContextPath: "/nacos",
-			Port:        uint64(GetNacosConf().Port),
-			Scheme:      "http",
-		},
-	}
-	// 创建服务发现客户端的另一种方式 (推荐)
-	namingClient, err := clients.NewNamingClient(
-		vo.NacosClientParam{
-			ClientConfig:  &clientConfig,
-			ServerConfigs: serverConfigs,
-		},
-	)
-	if err != nil {
-		return "", 0, err
-	}
-
 	// SelectOneHealthyInstance将会按加权随机轮询的负载均衡策略返回一个健康的实例
 	// 实例必须满足的条件：health=true,enable=true and weight>0
-	instance, err := namingClient.SelectOneHealthyInstance(vo.SelectOneHealthInstanceParam{
+	instance, err := GetNNC().SelectOneHealthyInstance(vo.SelectOneHealthInstanceParam{
 		ServiceName: serviceName,
 		GroupName:   groupName, // 默认值DEFAULT_GROUP
 	})
