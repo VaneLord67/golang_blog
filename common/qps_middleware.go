@@ -14,7 +14,7 @@ func QpsMiddleware() gin.HandlerFunc {
 		e, b := sentinel.Entry("qps_middleware", sentinel.WithTrafficType(base.Inbound))
 		if b != nil {
 			// 请求被拒绝，在此处进行处理
-			context.AbortWithStatus(429)
+			FailCode(context, TOO_MANY_REQUESTS)
 			context.Abort()
 			return
 		} else {

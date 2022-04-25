@@ -9,8 +9,8 @@ import (
 func main() {
 	common.InitSentinel()
 	r := gin.Default()
-	r.Use(common.QpsMiddleware())
 	r.Use(common.Cors())
+	r.Use(common.QpsMiddleware())
 	// 设置API代理
 	proxy.APIProxy(r)
 	// 服务注册
