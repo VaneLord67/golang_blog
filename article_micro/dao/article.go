@@ -41,10 +41,9 @@ func UpdateContent(articleId int, content string) error {
 }
 
 type ArticleSearchVO struct {
-	Id       int
-	Title    string
-	Content  string
-	Username string
+	Id         int
+	Title      string
+	AuthorName string `gorm:"column:username"`
 }
 
 func Search(query string, pageSize, pageNum int) ([]ArticleSearchVO, error, int) {
