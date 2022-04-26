@@ -8,6 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 	"strconv"
+	"unicode/utf8"
 )
 
 func UpdateContent(c *gin.Context) {
@@ -26,10 +27,6 @@ func UpdateContent(c *gin.Context) {
 		return
 	}
 	if err := dao.UpdateContent(dto.ArticleId, dto.Content); err != nil {
-		common.CheckErr(c, err)
-		return
-	}
-	if err := dao.UpdateContentES(dto.ArticleId, dto.Content); err != nil {
 		common.CheckErr(c, err)
 		return
 	}
@@ -53,10 +50,6 @@ func UpdateTitle(c *gin.Context) {
 		return
 	}
 	if err = dao.UpdateTitle(dto.ArticleId, dto.Title); err != nil {
-		common.CheckErr(c, err)
-		return
-	}
-	if err = dao.UpdateTitleES(dto.ArticleId, dto.Title); err != nil {
 		common.CheckErr(c, err)
 		return
 	}
@@ -145,10 +138,6 @@ func Update(c *gin.Context) {
 		common.CheckErr(c, err)
 		return
 	}
-	if err := dao.UpdateES(&article); err != nil {
-		common.CheckErr(c, err)
-		return
-	}
 	common.Success(c)
 }
 
@@ -164,11 +153,7 @@ func Delete(c *gin.Context) {
 		common.CheckErr(c, err)
 		return
 	}
-	if err := dao.DeleteOneArticle(articleId, currentUser.Id); err != nil {
-		common.CheckErr(c, err)
-		return
-	}
-	if err := dao.DeleteES(articleId); err != nil {
+	if err = dao.DeleteOneArticle(articleId, currentUser.Id); err != nil {
 		common.CheckErr(c, err)
 		return
 	}
@@ -177,14 +162,22 @@ func Delete(c *gin.Context) {
 
 func Search(c *gin.Context) {
 	query := c.Query("query")
-	pageSize, err := strconv.Atoi(c.Query("pageSize"))
-	if err != nil {
-		common.FailCode(c, common.PARAMETER_PARSE_ERROR)
-		return
-	}
-	pageNum, err := strconv.Atoi(c.Query("pageNum"))
-	if err != nil {
-		common.FailCode(c, common.PARAMETER_PARSE_ERROR)
+	pageNum, pageSize := common.GetPageNumAndSize(c)
+	if utf8.RuneCountInString(query) <= 1 {
+		search, err, cnt := dao.GetAllByPage(pageSize, pageNum)
+		if err != nil {
+			common.CheckErr(c, err)
+			return
+		}
+		totalPage := common.TotalPage(cnt, pageSize)
+		vos := struct {
+			VoList    []dao.ArticleSearchVO
+			TotalPage int
+		}{
+			VoList:    search,
+			TotalPage: totalPage,
+		}
+		common.SuccessWithData(c, vos)
 		return
 	}
 	search, err, cnt := dao.Search(query, pageSize, pageNum)
@@ -192,34 +185,15 @@ func Search(c *gin.Context) {
 		common.CheckErr(c, err)
 		return
 	}
-	type voType struct {
-		Id         int
-		Title      string
-		AuthorName string
-	}
-	var vos []voType
-	for _, ele := range search {
-		vo := voType{
-			Id:         ele.Id,
-			Title:      ele.Title,
-			AuthorName: ele.AuthorUsername,
-		}
-		vos = append(vos, vo)
-	}
-	var totalPage int
-	if cnt%pageSize == 0 {
-		totalPage = cnt / pageSize
-	} else {
-		totalPage = cnt/pageSize + 1
-	}
-	vosType := struct {
-		VoList    []voType
+	totalPage := common.TotalPage(cnt, pageSize)
+	vos := struct {
+		VoList    []dao.ArticleSearchVO
 		TotalPage int
 	}{
-		VoList:    vos,
+		VoList:    search,
 		TotalPage: totalPage,
 	}
-	common.SuccessWithData(c, vosType)
+	common.SuccessWithData(c, vos)
 }
 
 func CreateArticle(c *gin.Context) {
@@ -239,12 +213,7 @@ func CreateArticle(c *gin.Context) {
 		Content:  dto.Content,
 		AuthorId: user.Id,
 	}
-	if err := common.GetDB().Create(&newArticle).Error; err != nil {
-		common.CheckErr(c, err)
-		return
-	}
-	err := dao.InsertES(&newArticle)
-	if err != nil {
+	if err := dao.CreateArticle(&newArticle); err != nil {
 		common.CheckErr(c, err)
 		return
 	}

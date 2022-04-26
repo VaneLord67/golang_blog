@@ -12,6 +12,16 @@ import (
 	"sync"
 )
 
+func TotalPage(count, pageSize int) int {
+	var totalPage int
+	if count%pageSize == 0 {
+		totalPage = count / pageSize
+	} else {
+		totalPage = count/pageSize + 1
+	}
+	return totalPage
+}
+
 // 单例db
 var db *gorm.DB
 var onceDB = sync.Once{} // golang提供的工具，目的是让某些代码只执行一次

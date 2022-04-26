@@ -46,7 +46,7 @@ func UpdateTitleES(articleId int, title string) error {
 	return nil
 }
 
-func Search(query string, pageSize, pageNum int) ([]ArticleEs, error, int) {
+func SearchES(query string, pageSize, pageNum int) ([]ArticleEs, error, int) {
 	if common.CheckPageParam(pageSize, pageNum) == false {
 		return nil, errors.New("page param err"), -1
 	}

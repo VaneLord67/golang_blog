@@ -5,7 +5,29 @@ import (
 )
 import "common/model"
 
-func UpdateContent(articleId int, content string) error {
+func SearchDB(query string, pageSize, pageNum int) ([]ArticleSearchVO, error, int) {
+	var res []ArticleSearchVO
+	offset := (pageNum - 1) * pageSize
+	if err := common.GetDB().Table("article").Select("article.id,title,content,user.username").Joins("JOIN user on user.id=article.author_id").Where("MATCH (title, content) AGAINST (? IN NATURAL LANGUAGE MODE)", query).Limit(pageSize).Offset(offset).Find(&res).Error; err != nil {
+		return nil, err, -1
+	}
+	var count int64
+	common.GetDB().Table("article").Select("article.id,title,content,user.username").Joins("JOIN user on user.id=article.author_id").Where("MATCH (title, content) AGAINST (? IN NATURAL LANGUAGE MODE)", query).Count(&count)
+	return res, nil, int(count)
+}
+
+func GetAllByPage(pageSize, pageNum int) ([]ArticleSearchVO, error, int) {
+	var res []ArticleSearchVO
+	offset := (pageNum - 1) * pageSize
+	if err := common.GetDB().Table("article").Select("article.id,title,content,user.username").Joins("JOIN user on user.id=article.author_id").Limit(pageSize).Offset(offset).Find(&res).Error; err != nil {
+		return nil, err, -1
+	}
+	var count int64
+	common.GetDB().Table("article").Select("article.id,title,content,user.username").Joins("JOIN user on user.id=article.author_id").Count(&count)
+	return res, nil, int(count)
+}
+
+func UpdateContentDB(articleId int, content string) error {
 	sqlArticle := model.Article{}
 	if err := common.GetDB().Where("id = ?", articleId).Take(&sqlArticle).Error; err != nil {
 		return err
@@ -17,7 +39,7 @@ func UpdateContent(articleId int, content string) error {
 	return nil
 }
 
-func UpdateTitle(articleId int, title string) error {
+func UpdateTitleDB(articleId int, title string) error {
 	sqlArticle := model.Article{}
 	if err := common.GetDB().Where("id = ?", articleId).Take(&sqlArticle).Error; err != nil {
 		return err
