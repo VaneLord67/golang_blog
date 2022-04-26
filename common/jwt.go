@@ -1,15 +1,42 @@
 package common
 
 import (
+	"encoding/json"
 	"errors"
 	"github.com/golang-jwt/jwt"
+	"github.com/nacos-group/nacos-sdk-go/vo"
+	"log"
 	"strconv"
 	"time"
 )
 
 const ACCESS_SECRET = "HUSTer_D724"
 const HEADER = "Authorization"
-const DURATION = time.Hour * 1
+
+var DURATION = time.Hour * 1
+
+func DynamicDuration() {
+	configClient := CreateConfigClient()
+	err := configClient.ListenConfig(vo.ConfigParam{
+		DataId: "Jwt",
+		Group:  "base",
+		OnChange: func(namespace, group, dataId, data string) {
+			var conf struct {
+				Hour int `json:"hour"`
+			}
+			err := json.Unmarshal([]byte(data), &conf)
+			if err != nil {
+				log.Println("配置格式有误，放弃本次配置切换")
+				return
+			}
+			DURATION = time.Hour * time.Duration(conf.Hour)
+			log.Println("切换配置为 DURATION = ", conf.Hour, "hour(s)")
+		},
+	})
+	if err != nil {
+		log.Fatal(err)
+	}
+}
 
 func CreateToken(userId int) (string, error) {
 	var err error

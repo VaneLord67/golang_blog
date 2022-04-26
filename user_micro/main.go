@@ -8,6 +8,7 @@ import (
 
 func main() {
 	r := gin.Default()
+	common.DynamicDuration()
 	// 设置路由
 	controller.UserController(r)
 	// 服务注册

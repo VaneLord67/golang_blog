@@ -2,12 +2,41 @@ package common
 
 import (
 	"github.com/nacos-group/nacos-sdk-go/clients"
+	"github.com/nacos-group/nacos-sdk-go/clients/config_client"
 	"github.com/nacos-group/nacos-sdk-go/clients/naming_client"
 	"github.com/nacos-group/nacos-sdk-go/common/constant"
 	"github.com/nacos-group/nacos-sdk-go/vo"
 	"log"
 	"sync"
 )
+
+func CreateConfigClient() config_client.IConfigClient {
+	var clientConfig = constant.ClientConfig{
+		NamespaceId:         GetNacosConf().NamespaceId, // 如果需要支持多namespace，我们可以场景多个client,它们有不同的NamespaceId。当namespace是public时，此处填空字符串。
+		TimeoutMs:           5000,
+		LogLevel:            "warn",
+		NotLoadCacheAtStart: true,
+	}
+	var serverConfigs = []constant.ServerConfig{
+		{
+			IpAddr:      GetNacosConf().Host,
+			ContextPath: "/nacos",
+			Port:        uint64(GetNacosConf().Port),
+			Scheme:      "http",
+		},
+	}
+	// 创建动态配置客户端的另一种方式 (推荐)
+	configClient, err := clients.NewConfigClient(
+		vo.NacosClientParam{
+			ClientConfig:  &clientConfig,
+			ServerConfigs: serverConfigs,
+		},
+	)
+	if err != nil {
+		log.Fatal(err)
+	}
+	return configClient
+}
 
 type NacosConf struct {
 	Host        string
