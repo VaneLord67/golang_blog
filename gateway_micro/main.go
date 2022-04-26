@@ -8,6 +8,7 @@ import (
 
 func main() {
 	common.InitSentinel()
+	common.DynamicQPS()
 	r := gin.Default()
 	r.Use(common.Cors())
 	r.Use(common.QpsMiddleware())
