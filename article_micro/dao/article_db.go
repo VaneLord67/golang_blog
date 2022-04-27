@@ -8,7 +8,7 @@ import "common/model"
 func SearchDB(query string, pageSize, pageNum int) ([]ArticleSearchVO, error, int) {
 	var res []ArticleSearchVO
 	offset := (pageNum - 1) * pageSize
-	if err := common.GetDB().Table("article").Select("article.id,title,user.username").Joins("JOIN user on user.id=article.author_id").Where("MATCH (title, content) AGAINST (? IN NATURAL LANGUAGE MODE)", query).Limit(pageSize).Offset(offset).Find(&res).Error; err != nil {
+	if err := common.GetDB().Table("article").Select("article.id,title,user.username").Joins("JOIN user on user.id=article.author_id").Where("MATCH (title, content) AGAINST (? IN NATURAL LANGUAGE MODE)", query).Limit(pageSize).Offset(offset).Order("article.id desc").Find(&res).Error; err != nil {
 		return nil, err, -1
 	}
 	var count int64
@@ -19,7 +19,7 @@ func SearchDB(query string, pageSize, pageNum int) ([]ArticleSearchVO, error, in
 func GetAllByPage(pageSize, pageNum int) ([]ArticleSearchVO, error, int) {
 	var res []ArticleSearchVO
 	offset := (pageNum - 1) * pageSize
-	if err := common.GetDB().Table("article").Select("article.id,title,user.username").Joins("JOIN user on user.id=article.author_id").Limit(pageSize).Offset(offset).Find(&res).Error; err != nil {
+	if err := common.GetDB().Table("article").Select("article.id,title,user.username").Joins("JOIN user on user.id=article.author_id").Limit(pageSize).Offset(offset).Order("article.id desc").Find(&res).Error; err != nil {
 		return nil, err, -1
 	}
 	var count int64
