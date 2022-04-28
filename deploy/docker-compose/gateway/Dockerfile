@@ -7,14 +7,14 @@ VOLUME ["/apps"]
 # 拷贝当前目录下文件
 COPY . /apps/
 # 设置时区为上海
-RUN ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime \
-    && echo 'Asia/Shanghai' > /etc/timezone \
+RUN apk add --no-cache tzdata \
+    && cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime \
+    && echo "Asia/Shanghai" > /etc/timezone \
+    && apk del tzdata \
     && chmod 777 /apps/up.sh \
     && sed -i "s/\r//"  /apps/up.sh \
     && chmod 777 /apps/gateway_micro
 # 设置编码
 ENV LANG C.UTF-8
-# 暴露端口
-EXPOSE 8085
 # 运行golang程序的命令
 ENTRYPOINT ["/apps/up.sh"]

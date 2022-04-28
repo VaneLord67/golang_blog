@@ -46,13 +46,18 @@ func ReadYaml() *Conf {
 	return conf
 }
 
+type Datasource struct {
+	Host     string `yaml:"host"`
+	Port     int64  `yaml:"port"`
+	Username string `yaml:"username"`
+	Password string `yaml:"password"`
+	DbName   string `yaml:"dbName"`
+}
+
 type Conf struct {
 	Database struct {
-		Host     string `yaml:"host"`
-		Port     int64  `yaml:"port"`
-		Username string `yaml:"username"`
-		Password string `yaml:"password"`
-		DbName   string `yaml:"dbName"`
+		Master Datasource
+		Slave  Datasource
 	}
 	Nacos struct {
 		Host        string `yaml:"host"`

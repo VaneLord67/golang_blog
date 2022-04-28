@@ -64,4 +64,5 @@ require (
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gorm.io/driver/mysql v1.3.3 // indirect
 	gorm.io/gorm v1.23.4 // indirect
+	gorm.io/plugin/dbresolver v1.1.0 // indirect
 )
