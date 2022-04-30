@@ -63,7 +63,7 @@ func GetPermission(userId, articleId int) bool {
 	return sqlUser.Id == sqlArticle.AuthorId
 }
 
-func GetAuthorNameByArticleId(articleId int) (string, error) {
+func GetAuthorNameByArticleIdDB(articleId int) (string, error) {
 	sqlArticle := model.Article{}
 	sqlAuthor := model.User{}
 	if err := common.GetDB().Where("id = ?", articleId).Take(&sqlArticle).Error; err != nil {
@@ -75,7 +75,7 @@ func GetAuthorNameByArticleId(articleId int) (string, error) {
 	return sqlAuthor.Username, nil
 }
 
-func DeleteOneArticle(articleId int, userId int) error {
+func DeleteOneArticleDB(articleId int, userId int) error {
 	sqlArticle := model.Article{}
 	common.GetDB().Where("id = ?", articleId).Take(&sqlArticle)
 	if sqlArticle.AuthorId != userId {

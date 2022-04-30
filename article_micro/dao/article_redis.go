@@ -7,11 +7,54 @@ import (
 	"time"
 )
 
+func GetCacheAuthorNameRD(articleId int) (string, error) {
+	key := GetKeyByArticleId(articleId)
+	result, err := common.GetRC().HGet(key, "authorName").Result()
+	if err != nil {
+		return "", err
+	}
+	return result, nil
+}
+
+func ExistAuthorNameRD(articleId int) (bool, error) {
+	key := GetKeyByArticleId(articleId)
+	res, err := common.GetRC().HExists(key, "authorName").Result()
+	if err != nil {
+		return res, err
+	}
+	return res, nil
+}
+
+func CacheAuthorNameRD(articleId int, authorName string) error {
+	key := GetKeyByArticleId(articleId)
+	err := common.GetRC().HSet(key, "authorName", authorName).Err()
+	if err != nil {
+		return err
+	}
+	err = common.GetRC().Expire(key, time.Duration(10)*time.Minute).Err()
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func GetKeyByArticleId(articleId int) string {
 	return "article:" + strconv.Itoa(articleId)
 }
 
-func GetOneArticleRD(articleId int) (*model.Article, error) {
+func ExistOneArticleRD(articleId int) (bool, error) {
+	redisRes, err := common.GetRC().Exists(GetKeyByArticleId(articleId)).Result()
+	if err != nil {
+		return false, err
+	}
+	if redisRes > 0 {
+		return true, nil
+	} else {
+		return false, nil
+	}
+}
+
+func GetCacheArticleRD(articleId int) (*model.Article, error) {
 	key := GetKeyByArticleId(articleId)
 	res := common.GetRC().HGetAll(key)
 	result, err := res.Result()

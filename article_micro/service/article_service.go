@@ -94,34 +94,15 @@ func GetOne(c *gin.Context) {
 		common.FailCode(c, common.PARAMETER_PARSE_ERROR)
 		return
 	}
-	id, err := strconv.Atoi(idStr)
+	articleId, err := strconv.Atoi(idStr)
 	if err != nil {
 		common.CheckErr(c, err)
 		return
 	}
-	var article *model.Article
-	redisRes, err := common.GetRC().Exists("article:" + strconv.Itoa(id)).Result()
+	article, err := dao.GetOneArticle(articleId)
 	if err != nil {
 		common.CheckErr(c, err)
 		return
-	}
-	if redisRes > 0 {
-		article, err = dao.GetOneArticleRD(id)
-		if err != nil {
-			common.CheckErr(c, err)
-			return
-		}
-	} else {
-		article, err = dao.GetOneArticleDB(id)
-		if err != nil {
-			common.CheckErr(c, err)
-			return
-		}
-		err = dao.CacheOneArticleRD(article)
-		if err != nil {
-			common.CheckErr(c, err)
-			return
-		}
 	}
 	authorName, err := dao.GetAuthorNameByArticleId(article.Id)
 	if err != nil {
