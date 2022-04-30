@@ -1,0 +1,19 @@
+version: '3'
+services:
+  gateway:
+    build: ./gateway
+    depends_on:
+      - redis
+    container_name: gateway
+    network_mode: host
+  micros:
+    build: ./micros
+    container_name: micros
+    depends_on:
+      - gateway
+    network_mode: host
+  redis:
+    image: redis
+    ports:
+    - "6380:6379"
+    container_name: golang_blog_redis

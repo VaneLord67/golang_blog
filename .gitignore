@@ -19,3 +19,4 @@ cache/
 /deploy/docker-compose/micros/article_micro
 /deploy/docker-compose/micros/captcha_micro
 /deploy/docker-compose/gateway/gateway_micro
+!/deploy/docker-compose/docker-compose.yml

@@ -99,10 +99,29 @@ func GetOne(c *gin.Context) {
 		common.CheckErr(c, err)
 		return
 	}
-	article, err := dao.GetOneArticle(id)
+	var article *model.Article
+	redisRes, err := common.GetRC().Exists("article:" + strconv.Itoa(id)).Result()
 	if err != nil {
 		common.CheckErr(c, err)
 		return
+	}
+	if redisRes > 0 {
+		article, err = dao.GetOneArticleRD(id)
+		if err != nil {
+			common.CheckErr(c, err)
+			return
+		}
+	} else {
+		article, err = dao.GetOneArticleDB(id)
+		if err != nil {
+			common.CheckErr(c, err)
+			return
+		}
+		err = dao.CacheOneArticleRD(article)
+		if err != nil {
+			common.CheckErr(c, err)
+			return
+		}
 	}
 	authorName, err := dao.GetAuthorNameByArticleId(article.Id)
 	if err != nil {

@@ -99,7 +99,7 @@ func UpdateOneArticle(article *model.Article) error {
 	return nil
 }
 
-func GetOneArticle(articleId int) (*model.Article, error) {
+func GetOneArticleDB(articleId int) (*model.Article, error) {
 	article := &model.Article{}
 	if err := common.GetDB().Where("id = ?", articleId).Take(article).Error; err != nil {
 		return nil, err

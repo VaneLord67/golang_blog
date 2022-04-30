@@ -27,14 +27,22 @@ func UpdateArticle(article *model.Article) error {
 }
 
 func UpdateTitle(articleId int, title string) error {
-	if err := UpdateTitleDB(articleId, title); err != nil {
+	err := DeleteCacheArticle(articleId)
+	if err != nil {
+		return err
+	}
+	if err = UpdateTitleDB(articleId, title); err != nil {
 		return err
 	}
 	return nil
 }
 
 func UpdateContent(articleId int, content string) error {
-	if err := UpdateContentDB(articleId, content); err != nil {
+	err := DeleteCacheArticle(articleId)
+	if err != nil {
+		return err
+	}
+	if err = UpdateContentDB(articleId, content); err != nil {
 		return err
 	}
 	return nil
