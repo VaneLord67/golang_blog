@@ -43,11 +43,12 @@ func GetKeyByArticleId(articleId int) string {
 }
 
 func ExistOneArticleRD(articleId int) (bool, error) {
-	redisRes, err := common.GetRC().Exists(GetKeyByArticleId(articleId)).Result()
+	//redisRes, err := common.GetRC().Exists(GetKeyByArticleId(articleId)).Result()
+	redisRes, err := common.GetRC().HExists(GetKeyByArticleId(articleId), "content").Result()
 	if err != nil {
 		return false, err
 	}
-	if redisRes > 0 {
+	if redisRes {
 		return true, nil
 	} else {
 		return false, nil
