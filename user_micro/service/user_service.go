@@ -12,7 +12,38 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+	"user_micro/dao"
 )
+
+func GithubLogin(c *gin.Context) {
+	var dto struct {
+		Code string `json:"code"`
+	}
+	err := common.Bind(c, &dto)
+	if err != nil {
+		common.CheckErr(c, err)
+		return
+	}
+	token, err := getAccessTokenFromGithub(dto.Code)
+	if err != nil {
+		common.CheckErr(c, err)
+		return
+	}
+	githubId, err := getGithubUserIdByToken(token)
+	if err != nil {
+		common.CheckErr(c, err)
+	}
+	user, err := dao.GetOneUserByGithubId(githubId)
+	if err != nil {
+		common.CheckErr(c, err)
+		return
+	}
+	if user == nil {
+		common.FailCode(c, common.GITHUB_ACCOUNT_NOT_BIND)
+		return
+	}
+	baseLogin(c, user)
+}
 
 func VerifyCaptcha(captchaId, value, nanoid string) bool {
 	//log.Println("nanoId = ", nanoid)
@@ -98,7 +129,11 @@ func UserLogin(c *gin.Context) {
 		common.FailCode(c, common.PASSWORD_WRONG)
 		return
 	}
-	token, err := common.CreateToken(sqlUser.Id)
+	baseLogin(c, &sqlUser)
+}
+
+func baseLogin(c *gin.Context, user *model.User) {
+	token, err := common.CreateToken(user.Id)
 	if err != nil {
 		common.FailCode(c, common.TOKEN_CREATE_ERROR)
 	}

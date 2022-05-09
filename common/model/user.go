@@ -4,6 +4,7 @@ type User struct {
 	Id       int `gorm:"column:id; PRIMARY_KEY"`
 	Username string
 	Password string
+	GithubId int `gorm:"column:github_id"`
 	// `gorm:"column:password"`
 }
 

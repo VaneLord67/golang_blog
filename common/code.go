@@ -23,3 +23,5 @@ var PARAMETER_PARSE_ERROR = ResultCode{Code: 106, Message: "参数解析异常"}
 var SERVICE_FIND_ERROR = ResultCode{Code: 107, Message: "服务发现失败"}
 var CAPTCHA_ERROR = ResultCode{Code: 108, Message: "验证码错误"}
 var TOO_MANY_REQUESTS = ResultCode{Code: 429, Message: "请求过多"}
+var GITHUB_TOKEN_GET_WRONG = ResultCode{Code: 109, Message: "获取Github token失败"}
+var GITHUB_ACCOUNT_NOT_BIND = ResultCode{Code: 110, Message: "Github账号未绑定"}
