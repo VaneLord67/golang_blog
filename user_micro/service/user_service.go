@@ -15,6 +15,44 @@ import (
 	"user_micro/dao"
 )
 
+func GithubBind(c *gin.Context) {
+	var dto struct {
+		Code     string `json:"code"`
+		Username string `json:"username"`
+		Password string `json:"password"`
+	}
+	err := common.Bind(c, &dto)
+	if err != nil {
+		common.CheckErr(c, err)
+		return
+	}
+	githubId, err := dao.GetGithubIdByCode(dto.Code)
+	if err != nil {
+		if errors.Is(err, redis.Nil) {
+			common.FailCode(c, common.GITHUB_INFO_GET_ERROR)
+			return
+		}
+		common.CheckErr(c, err)
+		return
+	}
+	_, err = dao.VerifyPassword(dto.Username, dto.Password)
+	if err != nil {
+		common.CheckErr(c, err)
+		return
+	}
+	sqlUser, err := dao.GetUserByUsername(dto.Username)
+	if err != nil {
+		common.CheckErr(c, err)
+		return
+	}
+	err = dao.BindGithub(sqlUser.Id, githubId)
+	if err != nil {
+		common.CheckErr(c, err)
+		return
+	}
+	baseLogin(c, sqlUser)
+}
+
 func GithubLogin(c *gin.Context) {
 	var dto struct {
 		Code string `json:"code"`
@@ -32,6 +70,12 @@ func GithubLogin(c *gin.Context) {
 	githubId, err := getGithubUserIdByToken(token)
 	if err != nil {
 		common.CheckErr(c, err)
+		return
+	}
+	err = dao.CacheCodeAndGithubId(dto.Code, githubId)
+	if err != nil {
+		common.CheckErr(c, err)
+		return
 	}
 	user, err := dao.GetOneUserByGithubId(githubId)
 	if err != nil {
@@ -113,29 +157,28 @@ func UserLogin(c *gin.Context) {
 		return
 	}
 	// 调用验证码
-	if dto.Value == "724" {
-
-	} else if !VerifyCaptcha(dto.CaptchaId, dto.Value, dto.NanoId) {
+	if !VerifyCaptcha(dto.CaptchaId, dto.Value, dto.NanoId) {
 		common.FailCode(c, common.CAPTCHA_ERROR)
 		return
 	}
-	sqlUser := model.User{}
-	result := common.GetDB().Where("username = ?", dto.Username).Take(&sqlUser)
-	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
-		common.FailCode(c, common.USER_NOT_EXISTS)
+	_, err := dao.VerifyPassword(dto.Username, dto.Password)
+	if err != nil {
+		common.CheckErr(c, err)
 		return
 	}
-	if sqlUser.Password != common.Md5Base64Encode(dto.Password) {
-		common.FailCode(c, common.PASSWORD_WRONG)
+	sqlUser, err := dao.GetUserByUsername(dto.Username)
+	if err != nil {
+		common.CheckErr(c, err)
 		return
 	}
-	baseLogin(c, &sqlUser)
+	baseLogin(c, sqlUser)
 }
 
 func baseLogin(c *gin.Context, user *model.User) {
 	token, err := common.CreateToken(user.Id)
 	if err != nil {
 		common.FailCode(c, common.TOKEN_CREATE_ERROR)
+		return
 	}
 	vo := struct {
 		Jwt string

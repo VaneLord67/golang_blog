@@ -25,3 +25,5 @@ var CAPTCHA_ERROR = ResultCode{Code: 108, Message: "验证码错误"}
 var TOO_MANY_REQUESTS = ResultCode{Code: 429, Message: "请求过多"}
 var GITHUB_TOKEN_GET_WRONG = ResultCode{Code: 109, Message: "获取Github token失败"}
 var GITHUB_ACCOUNT_NOT_BIND = ResultCode{Code: 110, Message: "Github账号未绑定"}
+var GITHUB_ACCOUNT_ALREADY_BIND = ResultCode{Code: 111, Message: "Github账号已绑定"}
+var GITHUB_INFO_GET_ERROR = ResultCode{Code: 112, Message: "获取Github用户信息失败"}

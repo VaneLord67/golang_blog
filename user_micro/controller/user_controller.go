@@ -12,5 +12,6 @@ func UserController(r *gin.Engine) {
 		userGroup.POST("/register", service.UserRegister)
 		userGroup.GET("/isLogin", service.IsLogin)
 		userGroup.POST("/github", service.GithubLogin)
+		userGroup.POST("/github/bind", service.GithubBind)
 	}
 }
