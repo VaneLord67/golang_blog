@@ -13,10 +13,7 @@ func ArticleProxy(r *gin.Engine) {
 }
 
 func articleService(c *gin.Context) {
-	ip, port, err := common.FindService("article", "article")
-	if err != nil {
-		common.CheckErr(c, err)
-		return
-	}
+	ip := "localhost"
+	var port uint64 = 8087
 	common.APIProxy(c, ip, port)
 }

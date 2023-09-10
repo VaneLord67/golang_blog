@@ -26,11 +26,8 @@ func CaptchaProxy(c *gin.Context) {
 	// 没有缓存
 	if errors.Is(err, redis.Nil) {
 		// 服务发现
-		ip, port, err := common.FindService("captcha", "base")
-		if err != nil {
-			common.FailCode(c, common.SERVICE_FIND_ERROR)
-		}
-		//log.Println("为" + nanoid + "设置缓存：" + strconv.FormatUint(port, 10))
+		ip := "localhost"
+		var port uint64 = 8088
 		common.GetRC().Set(nanoid, strconv.FormatUint(port, 10), time.Minute*5)
 		rawURL = "http://" + ip + ":" + strconv.FormatUint(port, 10)
 	} else {

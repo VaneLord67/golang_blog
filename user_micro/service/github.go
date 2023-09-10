@@ -3,50 +3,36 @@ package service
 import (
 	"common"
 	"encoding/json"
-	"github.com/nacos-group/nacos-sdk-go/vo"
 	"io/ioutil"
-	"log"
 	"net/http"
 	url2 "net/url"
+	"sync"
 )
 
-var clientId string
-var clientSecret string
+var onceGithubConf = sync.Once{} // golang提供的工具，目的是让某些代码只执行一次
+var githubConf *GithubConf
 
-func init() {
-	dynamicConfig()
+type GithubConf struct {
+	ClientId     string
+	ClientSecret string
 }
 
-func dynamicConfig() {
-	configClient := common.CreateConfigClient()
-	err := configClient.ListenConfig(vo.ConfigParam{
-		DataId: "app",
-		Group:  "base",
-		OnChange: func(namespace, group, dataId, data string) {
-			type githubType struct {
-				ClientID     string `json:"clientID"`
-				ClientSecret string `json:"clientSecret"`
-			}
-			var conf struct {
-				Github githubType `json:"github"`
-			}
-			err := json.Unmarshal([]byte(data), &conf)
-			if err != nil {
-				log.Println("动态加载Github配置失败,放弃本次配置切换")
-				return
-			}
-			log.Println("切换Github配置")
-			clientId = conf.Github.ClientID
-			clientSecret = conf.Github.ClientSecret
-		},
-	})
-	if err != nil {
-		log.Fatal(err)
+func GetGithubConf() *GithubConf {
+	onceGithubConf.Do(initGithubConf)
+	return githubConf
+}
+
+func initGithubConf() {
+	conf := common.ReadYaml()
+	githubConf = &GithubConf{
+		ClientId:     conf.Github.ClientId,
+		ClientSecret: conf.Github.ClientSecret,
 	}
 }
 
 func getAccessTokenFromGithub(code string) (string, error) {
-	url := "https://github.com/login/oauth/access_token?client_id=" + clientId + "&client_secret=" + clientSecret + "&code=" + code
+	url := "https://github.com/login/oauth/access_token?client_id=" +
+		GetGithubConf().ClientId + "&client_secret=" + GetGithubConf().ClientSecret + "&code=" + code
 	urlProxy, _ := url2.Parse("http://localhost:7890")
 	client := http.Client{
 		Transport: &http.Transport{

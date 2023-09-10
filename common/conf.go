@@ -9,7 +9,7 @@ import (
 	"sync"
 )
 
-type commonConf struct {
+type FlagConf struct {
 	ActiveConf string
 	ActivePort uint64
 }
@@ -18,7 +18,7 @@ func initConf() {
 	ac := flag.String("conf", "dev", "激活的配置文件")
 	portAdd := flag.Uint64("port", 8088, "端口")
 	flag.Parse()
-	c := &commonConf{
+	c := &FlagConf{
 		ActiveConf: *ac,
 		ActivePort: *portAdd,
 	}
@@ -26,15 +26,18 @@ func initConf() {
 }
 
 // 单例的confs
-var confs *commonConf
+var confs *FlagConf
 var onceConf = sync.Once{} // golang提供的工具，目的是让某些代码只执行一次
-func GetConfs() *commonConf {
+
+func GetConfs() *FlagConf {
 	onceConf.Do(initConf)
 	return confs
 }
+
 func getActiveConf() string {
 	return GetConfs().ActiveConf
 }
+
 func ReadYaml() *Conf {
 	activeConf := getActiveConf()
 	// 这里的路径是相对于命令执行的目录，所以是 ./
@@ -59,10 +62,12 @@ type Conf struct {
 		Master Datasource
 		Slave  Datasource
 	}
-	Nacos struct {
-		Host        string `yaml:"host"`
-		Port        int64  `yaml:"port"`
-		NamespaceId string `yaml:"namespaceId"`
+	JWT struct {
+		Secret string `yaml:"secret"`
+	} `yaml:"jwt"`
+	Github struct {
+		ClientId     string `yaml:"clientId"`
+		ClientSecret string `yaml:"clientSecret"`
 	}
 }
 

@@ -13,10 +13,7 @@ func UserProxy(r *gin.Engine) {
 }
 
 func UserService(c *gin.Context) {
-	ip, port, err := common.FindService("user", "user")
-	if err != nil {
-		common.CheckErr(c, err)
-		return
-	}
+	ip := "localhost"
+	var port uint64 = 8086
 	common.APIProxy(c, ip, port)
 }

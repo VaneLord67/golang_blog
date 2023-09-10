@@ -59,6 +59,7 @@ func initDatabaseConf() {
 		Port:     conf.Database.Slave.Port,
 		Dbname:   conf.Database.Slave.DbName,
 	}
+
 }
 
 var onceDBConf = sync.Once{} // golang提供的工具，目的是让某些代码只执行一次

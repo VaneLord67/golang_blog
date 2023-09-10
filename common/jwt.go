@@ -1,41 +1,32 @@
 package common
 
 import (
-	"encoding/json"
 	"errors"
 	"github.com/golang-jwt/jwt"
-	"github.com/nacos-group/nacos-sdk-go/vo"
-	"log"
 	"strconv"
+	"sync"
 	"time"
 )
 
-const ACCESS_SECRET = "HUSTer_D724"
 const HEADER = "Authorization"
 
 var DURATION = time.Hour * 1
 
-func DynamicDuration() {
-	configClient := CreateConfigClient()
-	err := configClient.ListenConfig(vo.ConfigParam{
-		DataId: "Jwt",
-		Group:  "base",
-		OnChange: func(namespace, group, dataId, data string) {
-			var conf struct {
-				Hour int `json:"hour"`
-			}
-			err := json.Unmarshal([]byte(data), &conf)
-			if err != nil {
-				log.Println("配置格式有误，放弃本次配置切换")
-				return
-			}
-			DURATION = time.Hour * time.Duration(conf.Hour)
-			log.Println("切换配置为 DURATION = ", conf.Hour, "hour(s)")
-		},
-	})
-	if err != nil {
-		log.Fatal(err)
-	}
+var onceJWTConf = sync.Once{} // golang提供的工具，目的是让某些代码只执行一次
+var jwtConf *JWTConf
+
+type JWTConf struct {
+	Secret string
+}
+
+func GetJWTConf() *JWTConf {
+	onceJWTConf.Do(initJWTConf)
+	return jwtConf
+}
+
+func initJWTConf() {
+	conf := ReadYaml()
+	jwtConf = &JWTConf{Secret: conf.JWT.Secret}
 }
 
 func CreateToken(userId int) (string, error) {
@@ -48,7 +39,7 @@ func CreateToken(userId int) (string, error) {
 	atCliams["exp"] = time.Now().Add(DURATION).Unix()
 
 	at := jwt.NewWithClaims(jwt.SigningMethodHS256, atCliams)
-	token, err := at.SignedString([]byte(ACCESS_SECRET))
+	token, err := at.SignedString([]byte(GetJWTConf().Secret))
 	if err != nil {
 		return "", err
 	}
@@ -57,7 +48,7 @@ func CreateToken(userId int) (string, error) {
 
 func ParseToken(token string) (string, error) {
 	claim, err := jwt.Parse(token, func(token *jwt.Token) (interface{}, error) {
-		return []byte(ACCESS_SECRET), nil
+		return []byte(GetJWTConf().Secret), nil
 	})
 	if err != nil {
 		return "", err
