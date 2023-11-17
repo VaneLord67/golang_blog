@@ -10,7 +10,7 @@ import (
 
 const HEADER = "Authorization"
 
-var DURATION = time.Hour * 1
+var DURATION = time.Hour * 24 * 30
 
 var onceJWTConf = sync.Once{} // golang提供的工具，目的是让某些代码只执行一次
 var jwtConf *JWTConf

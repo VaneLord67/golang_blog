@@ -4,6 +4,7 @@ import (
 	"common"
 	"common/model"
 	"errors"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/go-redis/redis"
 	"gorm.io/gorm"
@@ -186,7 +187,13 @@ func baseLogin(c *gin.Context, user *model.User) {
 	common.SuccessWithData(c, vo)
 }
 
+var RegisterAllow = false
+
 func UserRegister(c *gin.Context) {
+	if !RegisterAllow {
+		common.CheckErr(c, fmt.Errorf("当前暂不支持注册"))
+		return
+	}
 	var dto struct {
 		Username  string `json:"username"`
 		Password  string `json:"password"`
